@@ -4,11 +4,11 @@ from django.contrib.auth.base_user import BaseUserManager
 class CustomUserManager(BaseUserManager):
 
     @staticmethod
-    def _normalize_name(self, name):
+    def _normalize_name(name):
         return name.lower()
 
     @staticmethod
-    def _normalize_identifier(self, passport_identifier):
+    def _normalize_identifier(passport_identifier):
         return passport_identifier.upper()
 
     def _create_user(self, email, password, first_name, last_name, passport_identifier, **extra_fields):
