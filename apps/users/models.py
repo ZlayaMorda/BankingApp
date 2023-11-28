@@ -16,7 +16,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin, HistorizedModel):
     last_name = models.CharField(max_length=50, blank=False)
     passport_identifier = models.CharField(max_length=14, unique=True)
     email = models.EmailField(unique=True)
-    role = models.CharField(max_length=5, choices=Roles.choices)
+    role = models.CharField(max_length=5, choices=Roles.choices, default="user")
     is_deleted = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
 
