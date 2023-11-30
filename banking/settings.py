@@ -15,7 +15,6 @@ DEBUG = True
 
 ALLOWED_HOSTS = ["*"]
 
-
 # Application definition
 
 INSTALLED_APPS = [
@@ -30,11 +29,13 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    "utils.exceptions.ExceptionMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "apps.authorization.middleware.AdminJWTMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
@@ -95,6 +96,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 AUTH_USER_MODEL = "users.CustomUser"
 
+AUTHENTICATION_BACKENDS = ["apps.authorization.services.authentication_backend.JWTAuthBackend",]
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
 
