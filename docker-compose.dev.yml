@@ -1,10 +1,10 @@
-version: '3.8'
+version: '3.9'
 services:
   web:
     container_name: banking_web
     build: .
     volumes:
-      - .:/app
+      - ./:/app
     ports:
       - "8000:8000"
     env_file:
