@@ -1,16 +1,14 @@
 import os
 from pathlib import Path
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
+# Build paths inside the project like this: BASE_DIR / "subdir".
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
-
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.environ.get("SECRET_KEY")
-# SECURITY WARNING: don't run with debug turned on in production!
+
+# SECURITY WARNING: don"t run with debug turned on in production!
 DEBUG = True
 
 ALLOWED_HOSTS = ["*"]
@@ -24,6 +22,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "django_redis",
     "apps.users",
     "apps.authorization",
 ]
@@ -62,22 +61,34 @@ WSGI_APPLICATION = "banking.wsgi.application"
 
 
 # Database
-# https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
 DATABASES = {
-   'default': {
-       'ENGINE': os.environ.get("SQL_ENGINE"),
-       'NAME': os.environ.get("POSTGRES_DATABASE"),
-       'USER': os.environ.get("POSTGRES_USER"),
-       'PASSWORD': os.environ.get("POSTGRES_PASSWORD"),
-       'HOST': os.environ.get("POSTGRES_HOST"),
-       'PORT': os.environ.get("POSTGRES_PORT"),
+   "default": {
+       "ENGINE": os.environ.get("SQL_ENGINE"),
+       "NAME": os.environ.get("POSTGRES_DATABASE"),
+       "USER": os.environ.get("POSTGRES_USER"),
+       "PASSWORD": os.environ.get("POSTGRES_PASSWORD"),
+       "HOST": os.environ.get("POSTGRES_HOST"),
+       "PORT": os.environ.get("POSTGRES_PORT"),
    }
 }
 
+# Define Redis configuration
+
+CACHES = {
+    "default": {
+        "BACKEND": os.environ.get("REDIS_ENGINE"),
+        "LOCATION": f"redis://{os.environ.get('REDIS_HOST')}:{os.environ.get('REDIS_PORT')}/1",
+        # "LOCATION": f"redis://:redis@{os.environ.get('REDIS_HOST')}:{os.environ.get('REDIS_PORT')}/1",
+        # "OPTIONS": {
+        #     "PASSWORD": os.environ.get("REDIS_PASSWORD"),
+        #     "CLIENT_CLASS": os.environ.get("REDIS_CLIENT"),
+        # },
+        "TIMEOUT": os.environ.get("REDIS_TIMEOUT"),
+    }
+}
 
 # Password validation
-# https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -97,8 +108,13 @@ AUTH_PASSWORD_VALIDATORS = [
 AUTH_USER_MODEL = "users.CustomUser"
 
 AUTHENTICATION_BACKENDS = ["apps.authorization.services.authentication_backend.JWTAuthBackend",]
+
+# JWT TOKEN
+
+EXPIRE_DAYS = int(os.environ.get("EXPIRE_DAYS"))
+EXPIRE_MINUTES = int(os.environ.get("EXPIRE_MINUTES"))
+
 # Internationalization
-# https://docs.djangoproject.com/en/4.2/topics/i18n/
 
 LANGUAGE_CODE = "en-us"
 
@@ -110,11 +126,9 @@ USE_TZ = True
 
 
 # Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/4.2/howto/static-files/
 
 STATIC_URL = "static/"
 
 # Default primary key field type
-# https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"

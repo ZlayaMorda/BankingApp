@@ -1,11 +1,10 @@
 from django.shortcuts import render, redirect
-from django.http import HttpResponse
-from .forms import UserSignUpForm, UserSignInForm
+from django.http import HttpResponseRedirect
 from django.contrib.auth import get_user_model
+from django.contrib.auth.hashers import check_password
+from .forms import UserSignUpForm, UserSignInForm, CodeForm
+from .services.code_generation import Code
 from .services.custom_jwt import CustomJwt
-
-
-# Create your views here.
 
 
 def user_sign_up(request):
@@ -26,21 +25,42 @@ def user_sign_in(request):
         if form.is_valid():
             passport_id = form.cleaned_data["passport_identifier"]
             password = form.cleaned_data["password"]
-            # TODO get user email, create JWT, put in Redis
             try:
                 user = User.objects.filter(passport_identifier=passport_id).first()
-            except:
-                return render(request, "sign_in.html", {"state": "Invalid password or identifier", "form": form})
-            if User().check_password(raw_password=password):
-                return render(request, "sign_in.html", {"state": "Invalid password or identifier", "form": form})
+                if check_password(user.password, password):
+                    return render(request, "sign_in.html",
+                                  {"state": "Invalid password or identifier", "form": form}, status=401)
+                # TODO CREATE EMAIL SENDING
+                jwt_token = CustomJwt.generate_jwt(user)
+                Code().store(jwt_token)
 
-            return redirect("sign_in_code")
+                return redirect("sign_in_code")
+            except:
+                return render(request, "sign_in.html",
+                              {"state": "Invalid password or identifier", "form": form}, status=401)
+        else:
+            return render(request, "sign_in.html",
+                          {"form": form}, status=401)
     else:
         form = UserSignInForm()
         return render(request, "sign_in.html", {"form": form})
 
 
 def user_sign_in_code(request):
-    response = HttpResponse()
-    # CustomJwt().set_cookie_jwt(response, user)
-    return HttpResponse("Code")
+    response = HttpResponseRedirect("/home/")
+
+    if request.method == "POST":
+        form = CodeForm(request.POST)
+        if form.is_valid():
+            code = form.cleaned_data["code"]
+            jwt_token = Code().load(code)
+
+            if jwt_token is not None:
+                CustomJwt.set_cookie_jwt(response, jwt_token)
+                return response
+            else:
+                redirect("sign_in")
+        else:
+            return render(request, "sign_in_code.html", {"form": form, "state": "Invalid code"})
+    form = CodeForm()
+    return render(request, "sign_in_code.html", {"form": form})
