@@ -1,12 +1,15 @@
-<!DOCTYPE html>
-<html lang="en">
-<h1>Sign in</h1>
-<form method="POST">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <a>{{state}}</a>
-    <br>
-    <button type="submit">Send</button>
-    <a href="{% url 'sign_in' %}">Sign in to get code</a>
-</form>
-</html>
+{% extends 'base/base.html' %}
+
+{% block content %}
+
+    <h1>Sign in</h1>
+    <form method="POST">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <a>{{state}}</a>
+        <br>
+        <button type="submit">Send</button>
+        <a href="{% url 'sign_in' %}">Sign in to get code</a>
+    </form>
+
+{% endblock %}
