@@ -11,7 +11,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin, HistorizedModel):
         USER = "user"
         ADMIN = "admin"
 
-    user_uuid = models.UUIDField(primary_key=True, default=uuid.uuid4(), editable=False)
+    user_uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     first_name = models.CharField(max_length=50, blank=False)
     last_name = models.CharField(max_length=50, blank=False)
     passport_identifier = models.CharField(max_length=14, unique=True)
