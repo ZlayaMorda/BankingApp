@@ -1,7 +1,6 @@
 .idea
 .env.dev
 .env.prod
-env
 
 # Django stuff:
 *.log

@@ -60,7 +60,7 @@ def user_sign_in_code(request):
                 CustomJwt.set_cookie_jwt(response, jwt_token)
                 return response
             else:
-                redirect("sign_in")
+                return render(request, "sign_in_code.html", {"form": form, "state": "Invalid code"})
         else:
             return render(request, "sign_in_code.html", {"form": form, "state": "Invalid code"})
     form = CodeForm()
