@@ -22,7 +22,7 @@ class AccountListView(View):
     def get(self, request):
         context = {}
 
-        if user := request.user and request.user is not AnonymousUser:
+        if request.user is not AnonymousUser:
             user = request.user
             accounts = self.service.retrieve_user_accounts(user=user)
             context['accounts'] = self.service.get_account_context(accounts, many=True)
