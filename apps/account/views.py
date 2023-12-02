@@ -4,7 +4,7 @@ from apps.account.services.account_service import AccountService
 
 
 class AccountDetailView(View):
-    template_name = "account.html"
+    template_name = "account/account.html"
     service = AccountService()
 
     def get(self, request, pk):

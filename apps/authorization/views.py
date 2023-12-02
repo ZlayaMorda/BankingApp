@@ -15,7 +15,7 @@ def user_sign_up(request):
             return redirect("sign_in")
     else:
         form = UserSignUpForm()
-    return render(request, "sign_up.html", {"form": form})
+    return render(request, "authorization/sign_in.html", {"form": form})
 
 
 def user_sign_in(request):
@@ -28,7 +28,7 @@ def user_sign_in(request):
             try:
                 user = User.objects.filter(passport_identifier=passport_id).first()
                 if check_password(user.password, password):
-                    return render(request, "sign_in.html",
+                    return render(request, "authorization/sign_in.html",
                                   {"state": "Invalid password or identifier", "form": form}, status=401)
                 # TODO CREATE EMAIL SENDING
                 jwt_token = CustomJwt.generate_jwt(user)
@@ -37,14 +37,14 @@ def user_sign_in(request):
                 return redirect("sign_in_code")
 
             except Exception as e:
-                return render(request, "sign_in.html",
+                return render(request, "authorization/sign_in.html",
                               {"state": "Invalid password or identifier", "form": form}, status=401)
         else:
-            return render(request, "sign_in.html",
+            return render(request, "authorization/sign_in.html",
                           {"form": form}, status=401)
     else:
         form = UserSignInForm()
-        return render(request, "sign_in.html", {"form": form})
+        return render(request, "authorization/sign_in.html", {"form": form})
 
 
 def user_sign_in_code(request):
@@ -60,8 +60,8 @@ def user_sign_in_code(request):
                 CustomJwt.set_cookie_jwt(response, jwt_token)
                 return response
             else:
-                return render(request, "sign_in_code.html", {"form": form, "state": "Invalid code"})
+                return render(request, "authorization/sign_in_code.html", {"form": form, "state": "Invalid code"})
         else:
-            return render(request, "sign_in_code.html", {"form": form, "state": "Invalid code"})
+            return render(request, "authorization/sign_in_code.html", {"form": form, "state": "Invalid code"})
     form = CodeForm()
-    return render(request, "sign_in_code.html", {"form": form})
+    return render(request, "authorization/sign_in_code.html", {"form": form})
