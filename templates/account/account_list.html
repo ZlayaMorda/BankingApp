@@ -4,29 +4,66 @@
 
         <div class="container mt-4">
             <div class="table-responsive">
-        <table class="table table-striped">
-            <thead class="thead-dark">
-                <tr>
-                    <th scope="col">Account Number</th>
-                    <th scope="col">Currency</th>
-                    <th scope="col">Amount</th>
-                    <th scope="col">Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for account in accounts %}
-                    <tr {% if forloop.counter|divisibleby:2 %}class="table-secondary"{% endif %}>
-                        <td>{{ account.id }}</td>
-                        <td>{{ account.currency }}</td>
-                        <td>{{ account.amount }}</td>
-                        <td>
-                            <a href="{% url 'account_detail' pk=account.id %}" class="btn btn-primary">Details</a>
-                        </td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+                <table class="table table-striped">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th scope="col">Account Number</th>
+                            <th scope="col">Currency</th>
+                            <th scope="col">Amount</th>
+                            <th scope="col">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for account in accounts %}
+                            <tr {% if forloop.counter|divisibleby:2 %}class="table-secondary"{% endif %}>
+                                <td>{{ account.id }}</td>
+                                <td>{{ account.currency }}</td>
+                                <td>{{ account.amount }}</td>
+                                <td>
+                                    <a href="{% url 'account_detail' pk=account.id %}" class="btn btn-primary">Details</a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+
+
+<!-- Button trigger modal -->
+<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createAccountModal">
+    Create Account
+</button>
+
+<!-- Modal -->
+<div class="modal fade" id="createAccountModal" tabindex="-1" aria-labelledby="createAccountModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="createAccountModalLabel">Create Account</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Account creation form -->
+                <form>
+                    <!-- Currency chooser -->
+                    <div class="mb-3">
+                        <label for="currency" class="form-label">Select Currency</label>
+                        <select class="form-select" id="currency">
+                            <option value="USD">USD</option>
+                            <option value="EUR">EUR</option>
+                            <option value="BYN">BYN</option>
+                            <!-- Add more currency options as needed -->
+                        </select>
+                    </div>
+                    <!-- Add other fields as needed for creating an account -->
+                    <button type="submit" class="btn btn-primary">Create</button>
+                </form>
+            </div>
+        </div>
     </div>
+</div>
+
 
         </div>
 
