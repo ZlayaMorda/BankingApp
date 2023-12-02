@@ -15,7 +15,7 @@ class AccountDetailView(View):
         return render(request, template_name=self.template_name, context=context)
 
 
-class AccountListView(View):
+class AccountListCreateView(View):
     template_name = "account/account_list.html"
     service = AccountService()
 
@@ -31,3 +31,7 @@ class AccountListView(View):
             return render(request, template_name='error/error.html', context=context)
 
         return render(request, template_name='account/account_list.html', context=context)
+
+
+    def post(self, request):
+        pass
