@@ -9,7 +9,6 @@ class ExceptionMiddleware:
     def __call__(self, request):
         try:
             response = self.get_response(request)
-            print(response)
         except AuthException as e:
             # response = HttpResponse(status=e.status_code, context={"message": e.message}, content="error.html")
             return render(request, "error.html", {"message": e.message})

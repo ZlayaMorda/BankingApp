@@ -6,7 +6,11 @@
         {{ form.as_p }}
         <a id="rate_percent">Rate percent: {{form.rate_percent}}</a>
         <br><br>
-        <button type="submit">Submit</button>
+        <button type="submit" name="calculate">Calculate</button>
+        <br><br>
+        <a id="calculated_sum">Sum to pay for the credit: {{sum_to_pay}}</a>
+        <br><br>
+        <button type="submit" name="take">Take</button>
     </form>
 
     <script>
