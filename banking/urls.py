@@ -1,12 +1,11 @@
 from django.contrib import admin
 from django.urls import path, include
-from banking import views
 
 
 urlpatterns = [
+    path("", include("apps.home.urls")),
     path("admin/", admin.site.urls),
-    path("home/", views.home, name="home"),
     path("account/", include("apps.account.urls")),
+    path("auth/", include("apps.authorization.urls")),
     path("credit/", include("apps.credit.urls")),
-    path("", include("apps.authorization.urls"))
 ]

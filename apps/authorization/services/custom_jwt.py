@@ -3,7 +3,7 @@ import jwt
 from django.contrib.auth import get_user_model
 from banking.settings import SECRET_KEY, EXPIRE_MINUTES, EXPIRE_DAYS
 from utils.exceptions import AuthException, NotFound
-
+from django.contrib.auth.models import AnonymousUser
 
 class CustomJwt:
     @staticmethod
@@ -20,7 +20,7 @@ class CustomJwt:
     def get_user_from_token(request):
         token = request.COOKIES.get("jwt_token")
         if token is None:  # TODO AUTH Exception
-            raise AuthException("Authentication credentials were not provided")
+            return AnonymousUser
         try:
             payload = jwt.decode(
                 token, SECRET_KEY, algorithms=["HS256"])
