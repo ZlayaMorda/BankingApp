@@ -33,20 +33,35 @@ class CreditCreate(View):
         return render(request, template_name=self.template_form, context={"form": form})
 
 
-# class CreditLoadPayment(View):
-#     template_payment = "credit/credit_payment.html"
-#     model_description = CreditDescription
-
-def get_payment(request):
+class CreditLoadPayment(View):
     template_payment = "credit/credit_payment.html"
-    model_description = CreditDescription
-    duration = request.GET.get("duration_in_month")
-    payment_types = model_description.objects.filter(duration_in_month=duration)
-    payments = ()
-    for i in payment_types:
-        if i.payment_type == PAYMENT_CHOICES[0][0]:
-            payments += (PAYMENT_CHOICES[0],)
-        else:
-            payments += (PAYMENT_CHOICES[1],)
+    service = CreditDescriptionService()
 
-    return render(request, template_name=template_payment, context={"payment_types": payments})
+    def get(self, request):
+        duration = request.GET.get("duration_in_month")
+        payment_types = self.service.get_with_duration(duration)
+        payments = ()
+        for i in payment_types:
+            if i.payment_type == PAYMENT_CHOICES[0][0]:
+                payments += (PAYMENT_CHOICES[0],)
+            else:
+                payments += (PAYMENT_CHOICES[1],)
+
+        return render(request, template_name=self.template_payment, context={"payment_types": payments})
+
+
+class CreditLoadDuration(View):
+    template_payment = "credit/credit_duration.html"
+    service = CreditDescriptionService()
+
+    def get(self, request):
+        payment = request.GET.get("payment_type")
+        durations_in_month = self.service.get_with_payment(payment)
+        durations = []
+        for i in durations_in_month:
+            durations.append(i.duration_in_month)
+        tuple_durations = ()
+        for i in set(durations):
+            tuple_durations += ((i, i),)
+        print(f"---------{durations}-----------")
+        return render(request, template_name=self.template_payment, context={"durations": tuple_durations})
