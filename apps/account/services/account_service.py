@@ -61,3 +61,6 @@ class AccountService:
     def delete_account(self, pk):
         result = Account.objects.filter(account_uuid=pk).first().delete()
         return result
+
+    def execute_account_transaction(self,):
+        pass
