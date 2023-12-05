@@ -1,4 +1,6 @@
 from django import forms
+
+from apps.account.services.account_service import AccountService
 from apps.credit.models import Credit, CreditDescription, PAYMENT_CHOICES
 from apps.credit.services.credit_service import CreditDescriptionService
 from apps.credit.utils.rate_percent import RatePercent
@@ -17,9 +19,9 @@ class CreditCreateForm(forms.Form):
     sum_of_credit = forms.DecimalField(max_value=999999999.99, min_value=100.0, max_digits=11, decimal_places=2)
 
     def __init__(self, user, *args, **kwargs):
-        self.user = user
-        accounts = user.accounts.all()
+        super().__init__(*args, **kwargs)
+        accounts = AccountService().retrieve_user_accounts(user=user)
         accounts_list = [i.account_uuid for i in accounts]
         accounts_tuple = tuple((value, value) for value in accounts_list)
-        self.account = forms.ChoiceField(choices=accounts_tuple, required=False)
-        super().__init__(*args, **kwargs)
+        self.fields["account"] = forms.ChoiceField(choices=accounts_tuple, required=False)
+
