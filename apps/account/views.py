@@ -51,3 +51,11 @@ class AccountDeleteView(View):
     def delete(self, request, pk):
         self.service.delete_account(pk)
         return redirect('account_list')
+
+
+class AccountTransferVuew(View):
+    service = AccountService()
+
+    def post(self, request):
+
+        return redirect('account_list')

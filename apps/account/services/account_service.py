@@ -1,7 +1,5 @@
-import uuid
-from datetime import datetime
 from apps.account.models import Account
-from apps.account.models import CURRENCY_CHOICES
+from django.db import transaction
 
 ACCOUNT_CONTEXT = {
     "owner": {
@@ -62,5 +60,19 @@ class AccountService:
         result = Account.objects.filter(account_uuid=pk).first().delete()
         return result
 
-    def execute_account_transaction(self,):
-        pass
+    def execute_account_transaction(self, source_account_uuid, destination_account_uuid, amount):
+        with transaction.atomic():
+            if source_account_uuid == destination_account_uuid:
+                raise ValueError('Using the same source and destination accounts is not allowed.')
+
+            source_account = Account.objects.get(account_uuid=source_account_uuid)
+            destination_account = Account.objects.get(account_uuid=destination_account_uuid)
+
+            if source_account.amount - amount < 0:
+                raise ValueError('Insufficient funds')
+
+            source_account.amount -= amount
+            destination_account.amount += amount
+
+            source_account.save()
+            destination_account.save()
