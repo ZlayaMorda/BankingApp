@@ -18,4 +18,4 @@ class AccountTransferForm(forms.Form):
         accounts = service.retrieve_user_accounts(user)
         self.fields['amount'] = forms.DecimalField(required=True)
         self.fields['own_accounts'] = forms.ChoiceField(choices=((acc.account_uuid, acc.account_uuid) for acc in accounts))
-        self.fields['destination_account'] = forms.UUIDField()
+        self.fields['destination_account'] = forms.UUIDField(required=False)

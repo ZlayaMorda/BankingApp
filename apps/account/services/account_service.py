@@ -24,8 +24,7 @@ class AccountService:
             context["owner"]["last_name"] = account.owner.last_name
             context["id"] = account.account_uuid
             context["currency"] = account.currency
-            context["amount"]: account.amount
-            a = account.created_at
+            context["amount"] = account.amount
             context["created_at"] = (account.created_at).strftime('%m/%d/%Y')
             context["updated_at"] = (account.created_at).strftime('%m/%d/%Y')
         return context

@@ -1,8 +1,10 @@
+import decimal
 from django.shortcuts import render, redirect
 from django.views import View
 from apps.account.services.account_service import AccountService
 from django.contrib.auth.models import AnonymousUser
 from apps.account.forms import AccountCreateForm, AccountTransferForm
+
 
 class AccountDetailView(View):
     template_name = "account/account_detail.html"
@@ -56,9 +58,18 @@ class AccountDeleteView(View):
         return redirect('account_list')
 
 
-class AccountTransferVuew(View):
+class AccountTransferView(View):
     service = AccountService()
 
-    def post(self, request):
+    def post(self, request, pk):
+        amount = request.POST.get('amount', None)
+        amount = decimal.Decimal(amount)
+        destination = request.POST.get('destination_account', None)
+        source = pk
+        own_account = request.POST.get('own_accounts', None)
+        if own_account:
+            self.service.execute_account_transaction(str(source), str(own_account), amount)
+        else:
+            self.service.execute_account_transaction(str(source), str(destination), amount)
 
         return redirect('account_list')
