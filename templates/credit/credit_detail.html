@@ -26,12 +26,16 @@
                     <div class="col-sm-9">{{ credit.amount_to_pay }}</div>
                 </div>
                 <div class="row mb-3">
+                    <div class="col-sm-3">One Payout:</div>
+                    <div class="col-sm-9">{{ credit.one_off_payment }}</div>
+                </div>
+                <div class="row mb-3">
                     <div class="col-sm-3">Next Payout:</div>
                     <div class="col-sm-9">{{ credit.next_payout }}</div>
                 </div>
                 <div class="row mb-3">
-                    <div class="col-sm-3">One Payout:</div>
-                    <div class="col-sm-9">{{ credit.one_off_payment }}</div>
+                    <div class="col-sm-3">One Current Payout:</div>
+                    <div class="col-sm-9">{{ credit.one_off_current_payment }}</div>
                 </div>
                 <div class="row mb-3">
                     <div class="col-sm-3">Count Of Payouts:</div>
@@ -44,7 +48,7 @@
                         <form method="POST">
                             {% csrf_token %}
                             {{ form_account }}
-                            <button type="submit" name="change" class="col-sm-2 mx-1 btn btn-dark">Change</button>
+                            <button type="submit" name="change_button" class="col-sm-2 mx-1 btn btn-dark">Change</button>
                         </form>
                     </div>
                 </div>
@@ -59,7 +63,12 @@
             </div>
             <div class="card-footer">
                 <div class="row" style="justify-content: center">
-                    <div class="col-sm-2 mx-1 btn btn-success">Payment</div>
+                    <form method="POST">
+                        {% csrf_token %}
+                        {{ form_payment }}
+                        <button type="submit" name="payment_button" class="col-sm-2 mx-1 btn btn-success">Payment</button>
+                        <a>{{ validation_state }}</a>
+                    </form>
                 </div>
             </div>
         </div>
