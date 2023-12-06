@@ -2,14 +2,17 @@ from django.shortcuts import render, redirect
 from django.views import View
 from apps.account.services.account_service import AccountService
 from django.contrib.auth.models import AnonymousUser
-from apps.account.forms import AccountCreateForm
+from apps.account.forms import AccountCreateForm, AccountTransferForm
 
 class AccountDetailView(View):
     template_name = "account/account_detail.html"
     service = AccountService()
+    account_transfer_form = AccountTransferForm
 
     def get(self, request, pk):
-        context = {}
+        context = {
+            'account_transfer_form': self.account_transfer_form(request.user)
+        }
         account = self.service.retrieve_account_by_pk(pk=pk)
         if account:
             context['account'] = self.service.get_account_context(account)

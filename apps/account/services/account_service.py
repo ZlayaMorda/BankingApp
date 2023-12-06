@@ -34,7 +34,6 @@ class AccountService:
         return self.model.objects.filter(account_uuid=pk).first()
 
     def retrieve_user_accounts(self, user) -> [Account]:
-        a = bool(user.accounts)
         return user.accounts.all()
 
     def get_account_context(self, account, many: bool = False):
