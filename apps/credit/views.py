@@ -5,6 +5,7 @@ from apps.credit.models import CreditDescription, Credit, PAYMENT_CHOICES
 from apps.credit.services.credit_service import CreditDescriptionService, CreditService
 from apps.credit.forms import CreditCreateForm
 from apps.credit.utils.rate_percent import RatePercent
+from utils.exceptions import AuthException
 
 
 class CreditCreate(View):
@@ -97,3 +98,15 @@ class CreditList(View):
         return render(request, template_name=self.template, context=context)
 
 
+class CreditDetail(View):
+    service = CreditService()
+    template = "credit/credit_detail.html"
+
+    def get(self, request, pk):
+        context = {}
+        credit = self.service.retrieve_credit_pk(pk)
+        if credit.owner_id == request.user.user_uuid:
+            context["credit"] = self.service.get_credit_context(credit)
+            return render(request, template_name=self.template, context=context)
+        else:
+            raise AuthException

@@ -10,6 +10,7 @@ CREDIT_CONTEXT = {
         "first_name": None,
         "last_name": None,
     },
+    "account": None,
     "credit_uuid": None,
     "currency": None,
     "amount_to_pay": 0.00,
@@ -52,6 +53,7 @@ class CreditService:
         if credit:
             context["owner"]["first_name"] = credit.owner.first_name
             context["owner"]["last_name"] = credit.owner.last_name
+            context["account"] = credit.account_uuid_id
             context["credit_uuid"] = credit.credit_uuid
             context["currency"] = credit.currency
             context["amount_to_pay"] = credit.amount_to_pay
@@ -114,3 +116,6 @@ class CreditService:
                 context.append(self.__init_context(cr))
 
         return context
+
+    def retrieve_credit_pk(self, pk):
+        return self.model.objects.filter(pk=pk).first()
