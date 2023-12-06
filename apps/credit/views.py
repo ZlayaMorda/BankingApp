@@ -1,6 +1,5 @@
 from django.shortcuts import render, redirect
 from django.views import View
-from django.http import HttpResponse
 
 from apps.credit.models import CreditDescription, Credit, PAYMENT_CHOICES
 from apps.credit.services.credit_service import CreditDescriptionService, CreditService
@@ -84,4 +83,17 @@ class RatePercentView(View):
             rate_percent = 0.0
 
         return render(request, template_name=self.template_payment, context={"rate_percent": rate_percent})
+
+
+class CreditList(View):
+    service = CreditService()
+    template = "credit/credit_list.html"
+
+    def get(self, request):
+        context = {}
+        user_credits = self.service.retrieve_user_credits(request.user)
+        context["credits"] = self.service.get_credit_context(user_credits, True)
+
+        return render(request, template_name=self.template, context=context)
+
 

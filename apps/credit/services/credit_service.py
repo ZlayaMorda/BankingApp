@@ -5,6 +5,21 @@ from apps.account.services.account_service import AccountService
 from apps.credit.models import Credit, CreditDescription
 from utils.exceptions import NotFound
 
+CREDIT_CONTEXT = {
+    "owner": {
+        "first_name": None,
+        "last_name": None,
+    },
+    "credit_uuid": None,
+    "currency": None,
+    "amount_to_pay": 0.00,
+    "next_payout": None,
+    "one_off_payment": 0.00,
+    "payout_count": 0,
+    "created_at": None,
+    "updated_at": None,
+}
+
 
 class CreditDescriptionService:
     model = CreditDescription
@@ -31,6 +46,22 @@ class CreditDescriptionService:
 class CreditService:
     model = Credit
 
+    @staticmethod
+    def __init_context(credit):
+        context = CREDIT_CONTEXT.copy()
+        if credit:
+            context["owner"]["first_name"] = credit.owner.first_name
+            context["owner"]["last_name"] = credit.owner.last_name
+            context["credit_uuid"] = credit.credit_uuid
+            context["currency"] = credit.currency
+            context["amount_to_pay"] = credit.amount_to_pay
+            context["next_payout"] = credit.next_payout.strftime('%m/%d/%Y')
+            context["one_off_payment"] = credit.one_off_payment
+            context["payout_count"] = credit.payout_count
+            context["created_at"] = credit.created_at.strftime('%m/%d/%Y')
+            context["updated_at"] = credit.created_at.strftime('%m/%d/%Y')
+        return context
+
     def get_descriptions(self):
         return self.model.objects.all()
 
@@ -46,7 +77,7 @@ class CreditService:
             next_payout += datetime.timedelta(days=30)
         elif payment == "OY":
             payout_count = duration / 12
-            next_payout += datetime.timedelta(days=30*12)
+            next_payout += datetime.timedelta(days=30 * 12)
 
         one_off_payment = round((float(sum_of_credit) + float(sum_of_credit) * credit_percent) / payout_count, 2)
         amount_to_pay = one_off_payment * payout_count
@@ -66,3 +97,20 @@ class CreditService:
             owner_id=user.user_uuid
         )
         credit.save()
+
+    @staticmethod
+    def retrieve_user_credits(user):
+        return user.credits.all()
+
+    def get_credit_context(self, credit, many: bool = False):
+        if not credit:
+            return CREDIT_CONTEXT
+
+        if not many:
+            context = self.__init_context(credit)
+        else:
+            context = []
+            for cr in credit:
+                context.append(self.__init_context(cr))
+
+        return context
