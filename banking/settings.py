@@ -31,9 +31,8 @@ INSTALLED_APPS = [
     "apps.users",
     "apps.authorization",
     "apps.account",
-    "apps.credit"
-    "apps.account",
-    'crispy_forms',
+    "apps.credit",
+    "crispy_forms",
     "crispy_bootstrap5",
 ]
 
@@ -139,7 +138,6 @@ STATICFILES_DIRS = (
 )
 
 STATIC_URL = "static/"
-
 
 # Default primary key field type
 
