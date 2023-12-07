@@ -144,7 +144,10 @@ class CreditDetail(View):
                     account_form = form_account_post.cleaned_data["account"]
                     account = self.service_account.retrieve_account_by_pk(account_form)
                     if account.owner_id == request.user.user_uuid:
-                        self.service_credit.update_credit_account(pk, account)
+                        if credit.currency == account.currency:
+                            self.service_credit.update_credit_account(pk, account)
+                        else:
+                            validation_state = "Currency must be the same"
                     else:
                         raise AuthException()
             elif "payment_button" in request.POST:
