@@ -25,3 +25,15 @@ class CreditCreateForm(forms.Form):
         accounts_tuple = tuple((value, value) for value in accounts_list)
         self.fields["account"] = forms.ChoiceField(choices=accounts_tuple, required=False)
 
+
+class CreditChangeAccount(forms.Form):
+    def __init__(self, user, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        accounts = AccountService().retrieve_user_accounts(user=user)
+        accounts_list = [i.account_uuid for i in accounts]
+        accounts_tuple = tuple((value, value) for value in accounts_list)
+        self.fields["account"] = forms.ChoiceField(choices=accounts_tuple, required=True, label="")
+
+
+class CreditPayment(forms.Form):
+    payment = forms.DecimalField(max_value=9999999999.99, min_value=0.01, max_digits=12, decimal_places=2)
