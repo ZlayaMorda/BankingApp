@@ -9,6 +9,7 @@ from apps.credit.services.credit_service import CreditDescriptionService, Credit
 from apps.credit.forms import CreditCreateForm, CreditChangeAccount, CreditPayment
 from apps.credit.utils.rate_percent import RatePercent
 from utils.exceptions import AuthException
+from utils.permissions import logged_in
 
 
 class CreditCreate(View):
@@ -17,6 +18,7 @@ class CreditCreate(View):
     template_form = "credit/credit_create.html"
     rate_percent = RatePercent()
 
+    @logged_in
     def post(self, request):
         form = CreditCreateForm(request.user, request.POST)
         sum_to_pay = 0.
@@ -37,6 +39,7 @@ class CreditCreate(View):
         return render(request, template_name=self.template_form,
                       context={"form": form, "sum_to_pay": sum_to_pay, "rate_percent": credit_percent})
 
+    @logged_in
     def get(self, request):
         form = CreditCreateForm(request.user)
         return render(request, template_name=self.template_form,
@@ -47,6 +50,7 @@ class CreditLoadPayment(View):
     template_payment = "credit/credit_payment.html"
     service = CreditDescriptionService()
 
+    @logged_in
     def get(self, request):
         duration = request.GET.get("duration_in_month")
         payment_types = self.service.get_with_duration(duration)
@@ -64,6 +68,7 @@ class CreditLoadDuration(View):
     template_payment = "credit/credit_duration.html"
     service = CreditDescriptionService()
 
+    @logged_in
     def get(self, request):
         payment = request.GET.get("payment_type")
         durations_in_month = self.service.get_with_payment(payment)
@@ -80,6 +85,7 @@ class RatePercentView(View):
     rate_percent = RatePercent()
     template_payment = "credit/credit_rate.html"
 
+    @logged_in
     def get(self, request):
         payment = request.GET.get("payment_type")
         duration = request.GET.get("duration")
@@ -95,6 +101,7 @@ class CreditList(View):
     service = CreditService()
     template = "credit/credit_list.html"
 
+    @logged_in
     def get(self, request):
         context = {}
         user_credits = self.service.retrieve_user_credits(request.user)
@@ -108,6 +115,7 @@ class CreditDetail(View):
     service_account = AccountService()
     template = "credit/credit_detail.html"
 
+    @logged_in
     def get(self, request, pk):
         form_account = CreditChangeAccount(request.user)
         form_payment = CreditPayment()
@@ -119,6 +127,7 @@ class CreditDetail(View):
         else:
             raise AuthException()
 
+    @logged_in
     def post(self, request, pk):
         form_account_post = CreditChangeAccount(request.user, request.POST)
         form_payment_post = CreditPayment(request.POST)
