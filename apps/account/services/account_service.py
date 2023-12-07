@@ -1,6 +1,7 @@
 from apps.account.models import Account
 from django.db import transaction
 
+from apps.account.services.third_party_api import ExchangeRateAPI
 from apps.credit.models import Credit
 
 ACCOUNT_CONTEXT = {
@@ -75,8 +76,10 @@ class AccountService:
             if source_account.amount - amount < 0:
                 raise ValueError('Insufficient funds')
 
+            amount_to_send = ExchangeRateAPI().calculate_amount(source_account.currency,
+                                                                destination_account.currency, amount)
             source_account.amount -= amount
-            destination_account.amount += amount
+            destination_account.amount += amount_to_send
 
             source_account.save()
             destination_account.save()
