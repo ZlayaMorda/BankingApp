@@ -1,7 +1,8 @@
-import uuid
-from datetime import datetime
 from apps.account.models import Account
-from apps.account.models import CURRENCY_CHOICES
+from django.db import transaction
+
+from apps.account.services.third_party_api import ExchangeRateAPI
+from apps.credit.models import Credit
 
 ACCOUNT_CONTEXT = {
     "owner": {
@@ -26,8 +27,7 @@ class AccountService:
             context["owner"]["last_name"] = account.owner.last_name
             context["id"] = account.account_uuid
             context["currency"] = account.currency
-            context["amount"]: account.amount
-            a = account.created_at
+            context["amount"] = account.amount
             context["created_at"] = (account.created_at).strftime('%m/%d/%Y')
             context["updated_at"] = (account.created_at).strftime('%m/%d/%Y')
         return context
@@ -36,13 +36,12 @@ class AccountService:
         return self.model.objects.filter(account_uuid=pk).first()
 
     def retrieve_user_accounts(self, user) -> [Account]:
-        a = bool(user.accounts)
         return user.accounts.all()
 
     def get_account_context(self, account, many: bool = False):
         context = ACCOUNT_CONTEXT
         if not account:
-            return ACCOUNT_CONTEXT
+            return None
 
         if not many:
             context = self.__init_context(account)
@@ -59,5 +58,28 @@ class AccountService:
         return True
 
     def delete_account(self, pk):
-        result = Account.objects.filter(account_uuid=pk).first().delete()
+        credit = Credit.objects.filter(account_uuid_id=pk).first()
+        account = Account.objects.filter(account_uuid=pk).first()
+        if credit or account.amount > 0:
+            return None
+        result = account.delete()
         return result
+
+    def execute_account_transaction(self, source_account_uuid, destination_account_uuid, amount):
+        with transaction.atomic():
+            if source_account_uuid == destination_account_uuid:
+                raise ValueError('Using the same source and destination accounts is not allowed.')
+
+            source_account = Account.objects.get(account_uuid=source_account_uuid)
+            destination_account = Account.objects.get(account_uuid=destination_account_uuid)
+
+            if source_account.amount - amount < 0:
+                raise ValueError('Insufficient funds')
+
+            amount_to_send = ExchangeRateAPI().calculate_amount(source_account.currency,
+                                                                destination_account.currency, amount)
+            source_account.amount -= amount
+            destination_account.amount += amount_to_send
+
+            source_account.save()
+            destination_account.save()

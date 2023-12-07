@@ -151,17 +151,23 @@ class CreditService:
             credit.one_off_current_payment = credit.amount_to_pay % credit.one_off_payment
             diff_count = remember_count - credit.payout_count
             if credit.payout_count == 0:
-                credit.next_payout = None
-            elif diff_count != 0:
-                if credit.description_uuid.payment_type == "OM":
-                    credit.next_payout += datetime.timedelta(days=30 * diff_count)
-                elif credit.description_uuid.payment_type == "OY":
-                    credit.next_payout += datetime.timedelta(days=30 * 12 * diff_count)
-            try:
-                with transaction.atomic():
-                    account.save()
-                    credit.save()
-            except IntegrityError:
-                raise IntegrityError()
+                try:
+                    with transaction.atomic():
+                        credit.delete()
+                        account.save()
+                except IntegrityError:
+                    raise IntegrityError()
+            else:
+                if diff_count != 0:
+                    if credit.description_uuid.payment_type == "OM":
+                        credit.next_payout += datetime.timedelta(days=30 * diff_count)
+                    elif credit.description_uuid.payment_type == "OY":
+                        credit.next_payout += datetime.timedelta(days=30 * 12 * diff_count)
+                try:
+                    with transaction.atomic():
+                        account.save()
+                        credit.save()
+                except IntegrityError:
+                    raise IntegrityError()
         else:
             raise ValidationError("Not valid sum of payment")

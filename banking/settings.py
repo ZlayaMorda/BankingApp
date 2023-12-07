@@ -31,7 +31,9 @@ INSTALLED_APPS = [
     "apps.users",
     "apps.authorization",
     "apps.account",
-    "apps.credit"
+    "apps.credit",
+    "crispy_forms",
+    "crispy_bootstrap5",
 ]
 
 MIDDLEWARE = [
@@ -136,11 +138,10 @@ STATICFILES_DIRS = (
 )
 
 STATIC_URL = "static/"
-STATICFILES_DIRS = [
-    BASE_DIR / STATIC_URL,
-]
-
 
 # Default primary key field type
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+CRISPY_ALLOWED_TEMPLATE_PACKS = 'uni_form'
+CRISPY_TEMPLATE_PACK = 'uni_form'
