@@ -129,7 +129,7 @@ class CreditService:
 
     @staticmethod
     def retrieve_user_credits(user):
-        return user.credits.all()
+        return user.credits.all().order_by("-amount_to_pay")
 
     def retrieve_credit_pk(self, pk):
         return self.model.objects.filter(pk=pk).first()
