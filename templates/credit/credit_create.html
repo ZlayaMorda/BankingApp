@@ -1,0 +1,89 @@
+{% extends 'base/base.html' %}
+
+{% block content %}
+    <form method="POST">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <a id="rate_percent">Rate percent: {{rate_percent}}</a>
+        <br><br>
+        <button type="submit" name="calculate" class="btn btn-info">Calculate</button>
+        <br><br>
+        <a id="calculated_sum">Sum to pay for the credit: {{sum_to_pay}}</a>
+        <br><br>
+        <button type="submit" name="take" class="btn btn-success">Take</button>
+    </form>
+
+    <script>
+        $("#id_duration_in_month").change(function()
+        {
+            var duration_in_month = $(this).val();
+            var remember_type = $("#id_payment_type").val()
+            const csrftoken = getCookie('csrftoken');
+            $.ajax(
+                {
+                    headers: {'X-CSRFTOKEN': csrftoken},
+                    type:"GET",
+                    url: "{% url 'ajax_load_payments' %}",
+                    data: {
+                        'duration_in_month': duration_in_month,
+                    },
+                    success: function (data) {
+                        $("#id_payment_type").html(data);
+                        $("#id_payment_type").val(remember_type);
+                        upgradeRate()
+                    },
+                    error: function(data){alert("Can't load data about credit");}
+                }
+            );
+        });
+    </script>
+    <script>
+        $("#id_payment_type").change(function()
+        {
+            var payment_type = $(this).val();
+            var remember_duration = $("#id_duration_in_month").val()
+            const csrftoken = getCookie('csrftoken');
+            $.ajax(
+                {
+                    headers: {'X-CSRFTOKEN': csrftoken},
+                    type:"GET",
+                    url: "{% url 'ajax_load_durations' %}",
+                    data: {
+                        'payment_type': payment_type,
+                        'remember_duration': remember_duration
+                    },
+                    success: function (data) {
+                        $("#id_duration_in_month").html(data);
+                        $("#id_duration_in_month").val(remember_duration)
+                        upgradeRate()
+                    },
+                    error: function(data){alert("Can't load data about credit")}
+                }
+            );
+        });
+    </script>
+        <script>
+            {#$("#id_payment_type, #id_duration_in_month").change(#}
+        function upgradeRate()
+        {
+            let payment = $("#id_payment_type").val();
+            let duration = $("#id_duration_in_month").val();
+            let csrftoken = getCookie('csrftoken');
+            $.ajax(
+                {
+                    headers: {'X-CSRFTOKEN': csrftoken},
+                    type:"GET",
+                    url: "{% url 'ajax_load_rate_percent' %}",
+                    data: {
+                        'payment_type': payment,
+                        'duration': duration
+                    },
+                    success: function (data) {
+                        $("#rate_percent").html(data);
+                    },
+                    error: function(data){alert("Can't load data about rate")}
+                }
+            );
+        }
+    </script>
+{% endblock %}
