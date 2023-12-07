@@ -152,3 +152,6 @@ AWS_SES_REGION_NAME = 'eu-central-1'
 AWS_SES_REGION_ENDPOINT = f'email.{AWS_SES_REGION_NAME}.amazonaws.com'
 AWS_SES_ACCESS_KEY_ID = env('AWS_ACCESS_KEY_ID')
 AWS_SES_SECRET_ACCESS_KEY = env('AWS_SECRET_ACCESS_KEY')
+
+# Email address to send email from
+EMAIL_BASE_ADDRESS = env('EMAIL_BASE')
