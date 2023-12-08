@@ -1,12 +1,16 @@
 import decimal
+import json
+from web3 import Web3
 from django.shortcuts import render, redirect
 from django.views import View
 from django.http import HttpResponse
 from apps.account.services.account_service import AccountService
 from django.contrib.auth.models import AnonymousUser
 from apps.account.forms import AccountCreateForm, AccountTransferForm
+from apps.account.services.validators import validate_decimal_value
 from utils.exceptions import AuthException
 from utils.permissions import logged_in
+from urllib.parse import parse_qs
 
 
 class AccountDetailView(View):
@@ -17,7 +21,7 @@ class AccountDetailView(View):
     @logged_in
     def get(self, request, pk):
         context = {
-            'account_transfer_form': self.account_transfer_form(request.user)
+            'account_transfer_form': self.account_transfer_form(request.user),
         }
         account = self.service.retrieve_account_by_pk(pk=pk)
         if account.owner == request.user:
@@ -101,3 +105,33 @@ class AccountTransferView(View):
             return render(request, template_name="account/account_detail.html", context=context)
 
         return redirect("account_list")
+
+
+class AccountTokenView(View):
+    service = AccountService()
+
+    @logged_in
+    def post(self, request, pk):
+        parsed_data = parse_qs(request.body.decode("utf-8"))
+        data = {key: value[0] if len(value) == 1 else value for key, value in parsed_data.items()}
+        data["amount"] = decimal.Decimal(data["amount"])
+        context = {}
+        print(data)
+        if validate_decimal_value(data["amount"]) and len(data["bc_account"]) == 42:
+            amount = data["amount"]
+            bc_account = Web3.to_checksum_address(data["bc_account"])
+            account = self.service.retrieve_account_by_pk(pk=pk)
+            if account.owner != request.user:
+                raise AuthException()
+            else:
+                self.service.exchange_for_token(account, amount, bc_account)
+                context["account"] = self.service.get_account_context(account)
+                return render(request, template_name="account/account_detail.html", context=context)
+        else:
+            account = self.service.retrieve_account_by_pk(pk=pk)
+            if account.owner != request.user:
+                raise AuthException()
+            context["account"] = self.service.get_account_context(account)
+            return render(request, template_name="account/account_detail.html", context=context)
+
+

@@ -2,6 +2,7 @@ from django import forms
 from apps.account.models import Account
 from apps.account.services.account_service import AccountService
 
+
 class AccountCreateForm(forms.ModelForm):
 
     class Meta:
@@ -18,7 +19,7 @@ class AccountTransferForm(forms.Form):
         accounts = service.retrieve_user_accounts(user)
         accounts_tuple = tuple((acc.account_uuid, acc.account_uuid) for acc in accounts)
         accounts_tuple += (("--", "--"),)
-        self.fields['amount'] = forms.DecimalField(required=True)
+        self.fields['amount'] = forms.DecimalField(required=True, decimal_places=2)
         self.fields['own_accounts'] = forms.ChoiceField(
             choices=accounts_tuple,
             initial="--"

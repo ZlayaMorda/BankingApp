@@ -155,3 +155,9 @@ AWS_SES_SECRET_ACCESS_KEY = env('AWS_SECRET_ACCESS_KEY')
 
 # Email address to send email from
 EMAIL_BASE_ADDRESS = env('EMAIL_BASE')
+
+# WEB3
+
+BC_URL = f'http://{env("HOST")}:{env("PORT")}'
+CONTRACT_ADDRESS = env("TOKEN_ADDRESS")
+PRIVATE_KEY = env("PRIVATE_KEY")
