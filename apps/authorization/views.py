@@ -54,7 +54,7 @@ def user_sign_in(request):
 
 
 def user_sign_in_code(request):
-    response = HttpResponseRedirect("/")
+    response = HttpResponseRedirect("/account/list")
 
     if request.method == "POST":
         form = CodeForm(request.POST)
@@ -74,7 +74,7 @@ def user_sign_in_code(request):
 
 
 class LogoutView(View):
-    response = HttpResponseRedirect("/")
+    response = HttpResponseRedirect("/auth/sign-in/")
 
     def get(self, request):
         self.response.delete_cookie("jwt_token")
