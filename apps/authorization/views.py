@@ -1,4 +1,5 @@
 from botocore.vendored.requests.packages.urllib3.exceptions import ResponseError
+from django.contrib.auth.hashers import check_password
 from django.shortcuts import render, redirect
 from django.http import HttpResponseRedirect
 from django.contrib.auth import get_user_model
@@ -30,7 +31,7 @@ def user_sign_in(request):
             password = form.cleaned_data["password"]
             try:
                 user = User.objects.filter(passport_identifier=passport_id).first()
-                if not user.check_password(password):
+                if not check_password(password, user.password):
                     return render(request, "authorization/sign_in.html",
                                   {"state": "Invalid password or identifier", "form": form}, status=401)
 
