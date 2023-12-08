@@ -1,12 +1,11 @@
 import decimal
 from django.shortcuts import render, redirect
 from django.views import View
-from django.http import HttpResponse
 from apps.account.services.account_service import AccountService
-from django.contrib.auth.models import AnonymousUser
 from apps.account.forms import AccountCreateForm, AccountTransferForm
 from utils.exceptions import AuthException
 from utils.permissions import logged_in
+from utils.exceptions import CustomValueError
 
 
 class AccountDetailView(View):
@@ -77,6 +76,10 @@ class AccountTransferView(View):
     def post(self, request, pk):
         form = AccountTransferForm(request.user, request.POST)
         context = {"account_transfer_form": form}
+
+        if request.POST.get("destination_account", None) and request.POST.get("own_accounts", None) != '--':
+            raise CustomValueError('Only one destination field must be chosen')
+
         if form.is_valid():
             amount = form.cleaned_data["amount"]
             amount = decimal.Decimal(amount)
