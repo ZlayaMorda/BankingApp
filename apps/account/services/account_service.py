@@ -1,5 +1,5 @@
 import uuid
-
+from datetime import datetime
 from apps.account.models import Account
 
 
@@ -28,8 +28,9 @@ class AccountService:
             context["id"] = account.account_uuid
             context["currency"] = account.currency
             context["amount"]: account.amount
-            context["created_at"]: account.created_at
-            context["updated_at"]: account.updated_at
+            a = account.created_at
+            context["created_at"] = (account.created_at).strftime('%m/%d/%Y')
+            context["updated_at"] = (account.created_at).strftime('%m/%d/%Y')
         return context
 
     def retrieve_account_by_pk(self, pk) -> Account:
