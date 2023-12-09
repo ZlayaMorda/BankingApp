@@ -1,3 +1,5 @@
 from django.contrib import admin
+from apps.credit.models import Credit, CreditDescription
 
-# Register your models here.
+admin.site.register(Credit)
+admin.site.register(CreditDescription)
