@@ -68,11 +68,11 @@ class AccountTransferView(View):
         form = AccountTransferForm(request.user, request.POST)
         context = {"account_transfer_form": form}
         if form.is_valid():
-            amount = form.cleaned_data["amount"]  # request.POST.get('amount', None)
+            amount = form.cleaned_data["amount"]
             amount = decimal.Decimal(amount)
-            destination = form.cleaned_data["destination_account"]  # request.POST.get('destination_account', None)
+            destination = form.cleaned_data["destination_account"]
             source = pk
-            own_account = form.cleaned_data["own_accounts"]  # request.POST.get('own_accounts', None)
+            own_account = form.cleaned_data["own_accounts"]
             if own_account != "--":
                 self.service.execute_account_transaction(str(source), str(own_account), amount)
             elif destination is not None:
