@@ -1,0 +1,78 @@
+<!-- Button trigger modal -->
+<button type="button" class="btn btn-primary w-100" data-bs-toggle="modal" data-bs-target="#createTokenModal">
+    Buy Tokens
+</button>
+
+<!-- Modal -->
+<div class="modal fade" id="createTokenModal" tabindex="-1" aria-labelledby="createTokenModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="createAccountModalLabel">Change For tokens</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form method="post" action="{% url 'change_for_token' pk=account.id %}">
+
+{#                    {% csrf_token %}#}
+{#                    <div class="mb-3">#}
+{#                        {{ change_for_token_form.as_p }}#}
+{#                    </div>#}
+                    <form id="Token">
+                        <!-- Decimal Field with up to 2 decimal places -->
+                        <label for="amount">Enter amount:</label><br>
+                        <input type="number" id="amount" name="amount" step="0.01" min="0"><br><br>
+
+                        <!-- Field limited to 42 characters in length -->
+                        <label for="bc_account">Enter account:</label><br>
+                        <input onclick="getAccount()" type="text" id="id_bc_account" name="bc_account" maxlength="42"><br><br>
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-primary">Change</button>
+                    </form>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.getElementById('Token').addEventListener('submit', function(event) {
+        event.preventDefault(); // Prevents the default form submission
+
+        // Get form values
+        var amount = parseFloat(document.getElementById('amount').value);
+        var bc_account = document.getElementById('bc_account').value;
+
+        // Prepare the data to be sent
+        var formData = {
+            amount: amount,
+            bc_account: bc_account
+        };
+        const csrftoken = getCookie('csrftoken');
+        // Send POST request using fetch API
+        fetch('{% url 'change_for_token' pk=account.id %}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFTOKEN': csrftoken
+            },
+            body: JSON.stringify(formData)
+        })
+        .then(response => {
+            if (response.ok) {
+                alert("OK");
+            } else {
+                throw new Error('Error in response');
+            }
+        })
+        .then(data => {
+            console.log('Response:', data);
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    });
+</script>
+{#<script>#}
+{#    $("#id_bc_account").onclick(getAccount());#}
+{#</script>#}
