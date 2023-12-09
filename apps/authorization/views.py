@@ -74,7 +74,7 @@ def user_sign_in_code(request):
 
 
 class LogoutView(View):
-    response = HttpResponseRedirect("/")
+    response = HttpResponseRedirect("/auth/sign-in/")
 
     def get(self, request):
         self.response.delete_cookie("jwt_token")
