@@ -6,7 +6,7 @@ from django.views import View
 from apps.authorization.forms import UserSignUpForm, UserSignInForm, CodeForm
 from apps.authorization.services.code_generation import Code
 from apps.authorization.services.custom_jwt import CustomJwt
-
+from apps.authorization.services.send_auth_email import AuthEmail
 
 def user_sign_up(request):
     if request.method == "POST":
@@ -20,7 +20,9 @@ def user_sign_up(request):
 
 
 def user_sign_in(request):
+    auth_email_service = AuthEmail()
     User = get_user_model()
+
     if request.method == "POST":
         form = UserSignInForm(request.POST)
         if form.is_valid():
@@ -31,9 +33,11 @@ def user_sign_in(request):
                 if check_password(user.password, password):
                     return render(request, "authorization/sign_in.html",
                                   {"state": "Invalid password or identifier", "form": form}, status=401)
-                # TODO CREATE EMAIL SENDING
+
                 jwt_token = CustomJwt.generate_jwt(user)
-                Code().store(jwt_token)
+                code = Code().store(jwt_token)
+                url = request.build_absolute_uri('/auth/sign-in-code/')
+                auth_email_service.send_login_mail(code, url=url, to_email=[user.email])
 
                 return redirect("sign_in_code")
 
