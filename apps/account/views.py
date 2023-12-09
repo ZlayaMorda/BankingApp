@@ -5,6 +5,7 @@ from django.http import HttpResponse
 from apps.account.services.account_service import AccountService
 from django.contrib.auth.models import AnonymousUser
 from apps.account.forms import AccountCreateForm, AccountTransferForm
+from utils.exceptions import AuthException
 
 
 class AccountDetailView(View):
@@ -35,8 +36,7 @@ class AccountListView(View):
             accounts = self.service.retrieve_user_accounts(user=user)
             context['accounts'] = self.service.get_account_context(accounts, many=True)
         else:
-            context = {'message': 'Not Authorized'}
-            return render(request, template_name='error/error.html', context=context)
+            raise AuthException()
 
         return render(request, template_name='account/account_list.html', context=context)
 
