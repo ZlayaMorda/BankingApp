@@ -52,8 +52,6 @@ class TestAccountService(unittest.TestCase):
         accounts = self.account_service.retrieve_user_accounts(user_mock)
         self.assertEqual(len(accounts), 0)
 
-    # Add concise tests for other methods
-
     @patch('apps.account.services.third_party_api.ExchangeRateAPI.calculate_amount')
     @patch('apps.account.models.Account.objects.get')
     def test_execute_account_transaction(self, mock_get, mock_calculate_amount):
