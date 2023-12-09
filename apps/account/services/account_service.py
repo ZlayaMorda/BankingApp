@@ -42,7 +42,7 @@ class AccountService:
     def get_account_context(self, account, many: bool = False):
         context = ACCOUNT_CONTEXT
         if not account:
-            return ACCOUNT_CONTEXT
+            return None
 
         if not many:
             context = self.__init_context(account)

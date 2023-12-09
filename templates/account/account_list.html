@@ -15,16 +15,18 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {% for account in accounts %}
-                            <tr {% if forloop.counter|divisibleby:2 %}class="table-secondary"{% endif %}>
-                                <td>{{ account.id }}</td>
-                                <td>{{ account.currency }}</td>
-                                <td>{{ account.amount }}</td>
-                                <td>
-                                    <a href="{% url 'account_detail' pk=account.id %}" class="btn btn-primary">Details</a>
-                                </td>
-                            </tr>
-                        {% endfor %}
+                        {% if accounts %}
+                            {% for account in accounts %}
+                                <tr {% if forloop.counter|divisibleby:2 %}class="table-secondary"{% endif %}>
+                                    <td>{{ account.id }}</td>
+                                    <td>{{ account.currency }}</td>
+                                    <td>{{ account.amount }}</td>
+                                    <td>
+                                        <a href="{% url 'account_detail' pk=account.id %}" class="btn btn-primary">Details</a>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        {% endif %}
                     </tbody>
                 </table>
             </div>
