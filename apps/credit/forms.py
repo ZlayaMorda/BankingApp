@@ -9,9 +9,10 @@ from apps.credit.utils.rate_percent import RatePercent
 class CreditCreateForm(forms.Form):
     descriptions = CreditDescriptionService().get_descriptions()
 
-    durations_list = [i.duration_in_month for i in descriptions]
+    durations_list = list(set(i.duration_in_month for i in descriptions))
     durations_list.sort()
-    description_duration = tuple((value, value) for value in set(durations_list))
+    durations_list.reverse()
+    description_duration = tuple((value, value) for value in durations_list)
     rate_percent = RatePercent().calculate_rate_percent(description_duration[0][0], PAYMENT_CHOICES[1][0])
 
     duration_in_month = forms.ChoiceField(choices=description_duration, initial=description_duration[0])

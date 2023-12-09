@@ -19,7 +19,7 @@ class CustomJwt:
     @staticmethod
     def get_user_from_token(request):
         token = request.COOKIES.get("jwt_token")
-        if token is None:  # TODO AUTH Exception
+        if token is None:
             return AnonymousUser
         try:
             payload = jwt.decode(

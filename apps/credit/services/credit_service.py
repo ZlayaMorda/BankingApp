@@ -39,7 +39,7 @@ class CreditDescriptionService:
         return self.model.objects.filter(duration_in_month=duration)
 
     def get_with_payment(self, payment):
-        return self.model.objects.filter(payment_type=payment)
+        return self.model.objects.filter(payment_type=payment).order_by("duration_in_month")
 
     def get_credit_rate(self, duration, payment):
         try:
@@ -71,7 +71,7 @@ class CreditService:
 
     def get_credit_context(self, credit, many: bool = False):
         if not credit:
-            return CREDIT_CONTEXT
+            return None
 
         if not many:
             context = self.__init_context(credit)

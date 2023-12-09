@@ -159,6 +159,40 @@ AWS_SES_SECRET_ACCESS_KEY = env('AWS_SECRET_ACCESS_KEY')
 # Email address to send email from
 EMAIL_BASE_ADDRESS = env('EMAIL_BASE')
 
+# Define the directory where log files will be stored
+LOGS_DIR = os.path.join(BASE_DIR, 'logs')  # BASE_DIR is the root directory of your Django project
+
+# Ensure the log directory exists
+if not os.path.exists(LOGS_DIR):
+    os.makedirs(LOGS_DIR)
+
+# Logging configuration
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '{asctime} {levelname} {name} {message}',
+            'style': '{',
+        },
+    },
+    'handlers': {
+        'file': {
+            'level': 'DEBUG',  # Set the desired logging level
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(LOGS_DIR, 'django.log'),  # Path to your log file
+            'formatter': 'verbose',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['file'],
+            'level': 'INFO',  # Set the desired logging level for Django logs
+            'propagate': True,
+        },
+    },
+}
+
 # WEB3
 
 BC_URL = f'http://{env("HOST")}:{env("PORT")}'
