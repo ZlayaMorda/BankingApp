@@ -28,7 +28,6 @@ class TestAccountViews(TestCase):
         response = account_list_view.get(request)
 
         self.assertEqual(response.status_code, 200)
-        # Add more assertions based on the expected behavior of AccountListView
 
     def test_account_create_view(self):
         request = self.factory.post('/account/create/', {'currency': 'USD'})
@@ -53,7 +52,6 @@ class TestAccountViews(TestCase):
         response = account_detail_view.get(request, pk=account.account_uuid)
 
         self.assertEqual(response.status_code, 200)
-        # Add more assertions based on the expected behavior of AccountDetailView
 
     def test_account_delete_view(self):
         form = AccountCreateForm({'currency': 'USD'})
@@ -70,7 +68,6 @@ class TestAccountViews(TestCase):
 
         self.assertIsInstance(response, JsonResponse)
         self.assertEqual(response.status_code, 200)
-        # Add more assertions based on the expected behavior of AccountDeleteView
 
     def test_account_transfer_view(self):
         form = AccountCreateForm({'currency': 'USD'})
@@ -86,7 +83,6 @@ class TestAccountViews(TestCase):
         response = account_transfer_view.post(request, pk=account.account_uuid)
 
         self.assertEqual(response.status_code, 200)  # Redirects to 'account_list'
-        # Add more assertions based on the expected behavior of AccountTransferView
 
         # Test scenarios for validation errors, different transactions, and more.
 
