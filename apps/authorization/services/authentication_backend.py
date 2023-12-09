@@ -10,5 +10,5 @@ class JWTAuthBackend(BaseBackend):
     def get_user(self, user_uuid):
         try:
             return CustomUser.objects.get(pk=user_uuid)
-        except:  # TODO exception
+        except:
             raise Exception("Not found")

@@ -2,8 +2,6 @@ import os
 import environ
 from pathlib import Path
 
-
-
 # Build paths inside the project like this: BASE_DIR / "subdir".
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -33,8 +31,9 @@ INSTALLED_APPS = [
     "apps.users",
     "apps.authorization",
     "apps.account",
-    'crispy_forms',
+    "crispy_forms",
     "crispy_bootstrap5",
+    "apps.credit",
 ]
 
 MIDDLEWARE = [
@@ -69,18 +68,17 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "banking.wsgi.application"
 
-
 # Database
 
 DATABASES = {
-   "default": {
-       "ENGINE": env("SQL_ENGINE"),
-       "NAME": env("POSTGRES_DATABASE"),
-       "USER": env("POSTGRES_USER"),
-       "PASSWORD": env("POSTGRES_PASSWORD"),
-       "HOST": env("POSTGRES_HOST"),
-       "PORT": env("POSTGRES_PORT"),
-   }
+    "default": {
+        "ENGINE": env("SQL_ENGINE"),
+        "NAME": env("POSTGRES_DATABASE"),
+        "USER": env("POSTGRES_USER"),
+        "PASSWORD": env("POSTGRES_PASSWORD"),
+        "HOST": env("POSTGRES_HOST"),
+        "PORT": env("POSTGRES_PORT"),
+    }
 }
 
 # Define Redis configuration
@@ -117,7 +115,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 AUTH_USER_MODEL = "users.CustomUser"
 
-AUTHENTICATION_BACKENDS = ["apps.authorization.services.authentication_backend.JWTAuthBackend",]
+AUTHENTICATION_BACKENDS = ["apps.authorization.services.authentication_backend.JWTAuthBackend", ]
 
 # JWT TOKEN
 
@@ -134,8 +132,10 @@ USE_I18N = True
 
 USE_TZ = True
 
-
 # Static files (CSS, JavaScript, Images)
+STATICFILES_DIRS = (
+    os.path.join(BASE_DIR, "static"),
+)
 
 STATIC_URL = "static/"
 STATICFILES_DIRS = [
