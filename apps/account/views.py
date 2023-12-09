@@ -1,7 +1,8 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.views import View
 from apps.account.services.account_service import AccountService
 from django.contrib.auth.models import AnonymousUser
+from apps.account.forms import AccountCreateForm
 
 class AccountDetailView(View):
     template_name = "account/account_detail.html"
@@ -15,12 +16,13 @@ class AccountDetailView(View):
         return render(request, template_name=self.template_name, context=context)
 
 
-class AccountListCreateView(View):
+class AccountListView(View):
     template_name = "account/account_list.html"
     service = AccountService()
+    account_create_form = AccountCreateForm
 
     def get(self, request):
-        context = {}
+        context = {"account_create_form": self.account_create_form}
 
         if request.user is not AnonymousUser:
             user = request.user
@@ -33,5 +35,11 @@ class AccountListCreateView(View):
         return render(request, template_name='account/account_list.html', context=context)
 
 
+class AccountCreateView(View):
+    service = AccountService()
+
     def post(self, request):
-        pass
+        form = AccountCreateForm(request.POST)
+        if form.is_valid():
+            self.service.create_account(request.user, form)
+        return redirect('account_list')
