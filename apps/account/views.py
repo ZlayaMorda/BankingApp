@@ -3,7 +3,7 @@ from django.shortcuts import render, redirect
 from django.views import View
 from apps.account.services.account_service import AccountService
 from apps.account.forms import AccountCreateForm, AccountTransferForm
-from utils.exceptions import AuthException
+from utils.exceptions import AuthException, NotFound
 from utils.permissions import logged_in
 from utils.exceptions import CustomValueError
 from django.http import JsonResponse
@@ -20,6 +20,8 @@ class AccountDetailView(View):
             'account_transfer_form': self.account_transfer_form(request.user)
         }
         account = self.service.retrieve_account_by_pk(pk=pk)
+        if not account:
+            raise NotFound("Account does not exist")
         if account.owner == request.user:
             if account:
                 context['account'] = self.service.get_account_context(account)
@@ -61,6 +63,8 @@ class AccountDeleteView(View):
     @logged_in
     def post(self, request, pk):
         account = self.service.retrieve_account_by_pk(pk=pk)
+        if not account:
+            raise NotFound("Account does not exist")
         if account.owner == request.user:
             if self.service.delete_account(pk):
                 return JsonResponse({'status': '200'})
@@ -88,6 +92,8 @@ class AccountTransferView(View):
             source = pk
             own_account = form.cleaned_data["own_accounts"]
             account = self.service.retrieve_account_by_pk(pk=pk)
+            if not account:
+                raise NotFound("Account does not exist")
             if account.owner != request.user:
                 raise AuthException()
             if own_account != "--":
@@ -100,6 +106,8 @@ class AccountTransferView(View):
                 return render(request, template_name="account/account_detail.html", context=context)
         else:
             account = self.service.retrieve_account_by_pk(pk=pk)
+            if not account:
+                raise NotFound("Account does not exist")
             if account.owner != request.user:
                 raise AuthException()
             context["account"] = self.service.get_account_context(account)
