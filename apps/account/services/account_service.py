@@ -1,3 +1,5 @@
+import uuid
+
 from apps.account.models import Account
 
 
@@ -8,7 +10,7 @@ ACCOUNT_CONTEXT = {
     },
     "account_uuid": None,
     "currency": None,
-    "amount": None,
+    "amount": 0.00,
     "created_at": None,
     "updated_at": None,
 }
@@ -18,17 +20,35 @@ class AccountService:
     model = Account
     context = ACCOUNT_CONTEXT
 
+    def __init_context(self, account):
+        context = ACCOUNT_CONTEXT
+        if account:
+            context["owner"]["first_name"] = account.owner.first_name
+            context["owner"]["last_name"] = account.owner.last_name
+            context["id"] = account.account_uuid
+            context["currency"] = account.currency
+            context["amount"]: account.amount
+            context["created_at"]: account.created_at
+            context["updated_at"]: account.updated_at
+        return context
+
     def retrieve_account_by_pk(self, pk) -> Account:
         return self.model.objects.filter(account_uuid=pk).first()
+    
+    def retrieve_user_accounts(self, user) -> [Account]:
+        a = bool(user.accounts)
+        return user.accounts.all()
 
-    def get_account_context(self, account: Account) -> ACCOUNT_CONTEXT:
+    def get_account_context(self, account, many: bool = False):
         context = ACCOUNT_CONTEXT
-        context["owner"]["first_name"] = account.owner.first_name
-        context["owner"]["last_name"] = account.owner.last_name
-        context["id"] = account.account_uuid
-        context["currency"] = account.currency
-        context["amount"]: account.amount
-        context["created_at"]: account.created_at
-        context["updated_at"]: account.updated_at
+        if not account:
+            return ACCOUNT_CONTEXT
+
+        if not many:
+            context = self.__init_context(account)
+        else:
+            context = []
+            for acc in account:
+                context.append(self.__init_context(acc))
 
         return context
