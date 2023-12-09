@@ -2,9 +2,10 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponseRedirect
 from django.contrib.auth import get_user_model
 from django.contrib.auth.hashers import check_password
-from .forms import UserSignUpForm, UserSignInForm, CodeForm
-from .services.code_generation import Code
-from .services.custom_jwt import CustomJwt
+from django.views import View
+from apps.authorization.forms import UserSignUpForm, UserSignInForm, CodeForm
+from apps.authorization.services.code_generation import Code
+from apps.authorization.services.custom_jwt import CustomJwt
 
 
 def user_sign_up(request):
@@ -48,7 +49,7 @@ def user_sign_in(request):
 
 
 def user_sign_in_code(request):
-    response = HttpResponseRedirect("/home/")
+    response = HttpResponseRedirect("/")
 
     if request.method == "POST":
         form = CodeForm(request.POST)
@@ -65,3 +66,11 @@ def user_sign_in_code(request):
             return render(request, "authorization/sign_in_code.html", {"form": form, "state": "Invalid code"})
     form = CodeForm()
     return render(request, "authorization/sign_in_code.html", {"form": form})
+
+
+class LogoutView(View):
+    response = HttpResponseRedirect("/")
+
+    def get(self, request):
+        self.response.delete_cookie("jwt_token")
+        return self.response
