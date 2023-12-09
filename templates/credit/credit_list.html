@@ -22,9 +22,9 @@
                                 <td>{{ credit.currency }}</td>
                                 <td>{{ credit.amount_to_pay }}</td>
                                 <td>{{ credit.next_payout }}</td>
-{#                                <td>#}
-{#                                    <a href="{% url 'credit_detail' pk=credit.id %}" class="btn btn-primary">Details</a>#}
-{#                                </td>#}
+                                <td>
+                                    <a href="{% url 'credit_detail' pk=credit.credit_uuid %}" class="btn btn-primary">Details</a>
+                                </td>
                             </tr>
                         {% endfor %}
                     </tbody>
