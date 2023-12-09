@@ -14,7 +14,7 @@ class CreditDescriptionService:
         return self.model.objects.filter(payment_type=payment)
 
     def get_credit_rate(self, duration, payment):
-        return self.model.objects.filter(duration_in_month=duration, payment_type=payment).first()
+        return float(self.model.objects.filter(duration_in_month=duration, payment_type=payment).first().rate_index)
 
 
 class CreditService:
