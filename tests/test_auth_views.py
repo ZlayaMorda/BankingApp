@@ -4,6 +4,7 @@ from django.contrib.auth import get_user_model
 from apps.authorization.forms import UserSignUpForm, UserSignInForm, CodeForm
 from unittest.mock import patch
 
+
 class TestUserSignUpView(TestCase):
     def test_user_sign_up_get(self):
         response = self.client.get(reverse('sign_up'))
@@ -17,6 +18,7 @@ class TestUserSignUpView(TestCase):
         }
         response = self.client.post(reverse('sign_up'), data=data)
         self.assertEqual(response.status_code, 200)  # Assuming it redirects after signing up
+
 
 class TestUserSignInView(TestCase):
     def setUp(self):
