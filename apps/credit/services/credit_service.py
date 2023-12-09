@@ -64,6 +64,19 @@ class CreditService:
             context["updated_at"] = credit.created_at.strftime('%m/%d/%Y')
         return context
 
+    def get_credit_context(self, credit, many: bool = False):
+        if not credit:
+            return CREDIT_CONTEXT
+
+        if not many:
+            context = self.__init_context(credit)
+        else:
+            context = []
+            for cr in credit:
+                context.append(self.__init_context(cr))
+
+        return context
+
     def get_descriptions(self):
         return self.model.objects.all()
 
@@ -104,18 +117,10 @@ class CreditService:
     def retrieve_user_credits(user):
         return user.credits.all()
 
-    def get_credit_context(self, credit, many: bool = False):
-        if not credit:
-            return CREDIT_CONTEXT
-
-        if not many:
-            context = self.__init_context(credit)
-        else:
-            context = []
-            for cr in credit:
-                context.append(self.__init_context(cr))
-
-        return context
-
     def retrieve_credit_pk(self, pk):
         return self.model.objects.filter(pk=pk).first()
+
+    def update_credit_account(self, pk, account):
+        credit = self.model.objects.filter(pk=pk).first()
+        credit.account_uuid = account
+        credit.save()
