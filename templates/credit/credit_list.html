@@ -1,0 +1,36 @@
+{% extends 'base/base.html' %}
+
+
+{% block content %}
+
+        <div class="container mt-4">
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th scope="col">Credit Number</th>
+                            <th scope="col">Currency</th>
+                            <th scope="col">All amount to pay</th>
+                            <th scope="col">Next payout</th>
+                            <th scope="col">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for credit in credits %}
+                            <tr {% if forloop.counter|divisibleby:2 %}class="table-secondary"{% endif %}>
+                                <td>{{ credit.credit_uuid }}</td>
+                                <td>{{ credit.currency }}</td>
+                                <td>{{ credit.amount_to_pay }}</td>
+                                <td>{{ credit.next_payout }}</td>
+{#                                <td>#}
+{#                                    <a href="{% url 'credit_detail' pk=credit.id %}" class="btn btn-primary">Details</a>#}
+{#                                </td>#}
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+
+{% endblock %}
