@@ -8,7 +8,7 @@ from apps.account.services.account_service import AccountService
 from django.contrib.auth.models import AnonymousUser
 from apps.account.forms import AccountCreateForm, AccountTransferForm
 from apps.account.services.validators import validate_decimal_value
-from utils.exceptions import AuthException
+from utils.exceptions import AuthException, NotFound
 from utils.permissions import logged_in
 from urllib.parse import parse_qs
 
@@ -114,13 +114,19 @@ class AccountTokenView(View):
     def post(self, request, pk):
         parsed_data = parse_qs(request.body.decode("utf-8"))
         data = {key: value[0] if len(value) == 1 else value for key, value in parsed_data.items()}
-        data["amount"] = decimal.Decimal(data["amount"])
         context = {}
-        print(data)
+        try:
+            data["amount"] = decimal.Decimal(data["amount"])
+        except KeyError:
+            context = {"token": True, "content": "Invalid amount"}
+            return render(request, template_name="account/account_detail.html", context=context)
+
         if validate_decimal_value(data["amount"]) and len(data["bc_account"]) == 42:
             amount = data["amount"]
             bc_account = Web3.to_checksum_address(data["bc_account"])
             account = self.service.retrieve_account_by_pk(pk=pk)
+            if not account:
+                raise NotFound("Account does not exist")
             if account.owner != request.user:
                 raise AuthException()
             else:
@@ -129,9 +135,13 @@ class AccountTokenView(View):
                 return render(request, template_name="account/account_detail.html", context=context)
         else:
             account = self.service.retrieve_account_by_pk(pk=pk)
+            if not account:
+                raise NotFound("Account does not exist")
             if account.owner != request.user:
                 raise AuthException()
             context["account"] = self.service.get_account_context(account)
+            context["token"] = True
+            context["content"] = "Invalid amount or address"
             return render(request, template_name="account/account_detail.html", context=context)
 
 

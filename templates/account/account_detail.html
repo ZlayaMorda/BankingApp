@@ -34,6 +34,19 @@
           body: JSON.stringify({action:'delete_account'})
         })
     }
+
+    function submit_token_modal() {
+        let token = '{{ token }}';
+
+        if (token) {
+            let accountTokenButton = document.getElementById("accountBuyToken");
+            accountTokenButton.click(); // this will trigger the click event
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", (event) => {
+        submit_token_modal();
+    });
 </script>
 {% endblock %}
 
