@@ -1,6 +1,7 @@
 import decimal
 from django.shortcuts import render, redirect
 from django.views import View
+from django.http import HttpResponse
 from apps.account.services.account_service import AccountService
 from django.contrib.auth.models import AnonymousUser
 from apps.account.forms import AccountCreateForm, AccountTransferForm
@@ -54,22 +55,35 @@ class AccountDeleteView(View):
     service = AccountService()
 
     def delete(self, request, pk):
-        self.service.delete_account(pk)
-        return redirect('account_list')
+        if self.service.delete_account(pk):
+            return redirect("account_list")
+        else:
+            return redirect("account_detail", pk)
 
 
 class AccountTransferView(View):
     service = AccountService()
 
     def post(self, request, pk):
-        amount = request.POST.get('amount', None)
-        amount = decimal.Decimal(amount)
-        destination = request.POST.get('destination_account', None)
-        source = pk
-        own_account = request.POST.get('own_accounts', None)
-        if own_account:
-            self.service.execute_account_transaction(str(source), str(own_account), amount)
+        form = AccountTransferForm(request.user, request.POST)
+        context = {"account_transfer_form": form}
+        if form.is_valid():
+            amount = form.cleaned_data["amount"]  # request.POST.get('amount', None)
+            amount = decimal.Decimal(amount)
+            destination = form.cleaned_data["destination_account"]  # request.POST.get('destination_account', None)
+            source = pk
+            own_account = form.cleaned_data["own_accounts"]  # request.POST.get('own_accounts', None)
+            if own_account != "--":
+                self.service.execute_account_transaction(str(source), str(own_account), amount)
+            elif destination is not None:
+                self.service.execute_account_transaction(str(source), str(destination), amount)
+            else:
+                account = self.service.retrieve_account_by_pk(pk=pk)
+                context["account"] = self.service.get_account_context(account)
+                return render(request, template_name="account/account_detail.html", context=context)
         else:
-            self.service.execute_account_transaction(str(source), str(destination), amount)
+            account = self.service.retrieve_account_by_pk(pk=pk)
+            context["account"] = self.service.get_account_context(account)
+            return render(request, template_name="account/account_detail.html", context=context)
 
-        return redirect('account_list')
+        return redirect("account_list")

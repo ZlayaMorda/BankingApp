@@ -16,6 +16,11 @@ class AccountTransferForm(forms.Form):
 
         service = AccountService()
         accounts = service.retrieve_user_accounts(user)
+        accounts_tuple = tuple((acc.account_uuid, acc.account_uuid) for acc in accounts)
+        accounts_tuple += (("--", "--"),)
         self.fields['amount'] = forms.DecimalField(required=True)
-        self.fields['own_accounts'] = forms.ChoiceField(choices=((acc.account_uuid, acc.account_uuid) for acc in accounts))
+        self.fields['own_accounts'] = forms.ChoiceField(
+            choices=accounts_tuple,
+            initial="--"
+        )
         self.fields['destination_account'] = forms.UUIDField(required=False)

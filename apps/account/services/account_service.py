@@ -1,6 +1,8 @@
 from apps.account.models import Account
 from django.db import transaction
 
+from apps.credit.models import Credit
+
 ACCOUNT_CONTEXT = {
     "owner": {
         "first_name": None,
@@ -55,7 +57,11 @@ class AccountService:
         return True
 
     def delete_account(self, pk):
-        result = Account.objects.filter(account_uuid=pk).first().delete()
+        credit = Credit.objects.filter(account_uuid_id=pk).first()
+        account = Account.objects.filter(account_uuid=pk).first()
+        if credit or account.amount > 0:
+            return None
+        result = account.delete()
         return result
 
     def execute_account_transaction(self, source_account_uuid, destination_account_uuid, amount):

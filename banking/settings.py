@@ -31,9 +31,9 @@ INSTALLED_APPS = [
     "apps.users",
     "apps.authorization",
     "apps.account",
+    "apps.credit",
     "crispy_forms",
     "crispy_bootstrap5",
-    "apps.credit",
 ]
 
 MIDDLEWARE = [
@@ -141,7 +141,6 @@ STATIC_URL = "static/"
 STATICFILES_DIRS = [
     BASE_DIR / STATIC_URL,
 ]
-
 
 # Default primary key field type
 
