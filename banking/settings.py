@@ -189,3 +189,9 @@ LOGGING = {
         },
     },
 }
+
+# WEB3
+
+BC_URL = f'http://{env("HOST")}:{env("PORT")}'
+CONTRACT_ADDRESS = env("TOKEN_ADDRESS")
+PRIVATE_KEY = env("PRIVATE_KEY")

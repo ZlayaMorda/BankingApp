@@ -37,3 +37,10 @@ services:
       - ./data/redis:/data/
     env_file:
       - .env.dev
+  web3:
+    container_name: web3
+    build: web3/.
+    ports:
+      - "8545:8545"
+    env_file:
+      - .env.dev

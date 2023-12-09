@@ -1,8 +1,11 @@
 from apps.account.models import Account
 from django.db import transaction
+from web3 import Web3
+import json
 
 from apps.account.services.third_party_api import ExchangeRateAPI
 from apps.credit.models import Credit
+from banking.settings import BC_URL, CONTRACT_ADDRESS, PRIVATE_KEY
 from utils.exceptions import CustomValueError
 
 ACCOUNT_CONTEXT = {
@@ -83,3 +86,42 @@ class AccountService:
 
             source_account.save()
             destination_account.save()
+
+    def exchange_for_token(self, account, amount, bc_account):
+        amount_to_get = ExchangeRateAPI().calculate_amount(account.currency, "BYN", amount)
+        if account.amount - amount < 0:
+            raise ValueError('Insufficient funds')
+        account.amount -= amount
+        account.save()
+
+        w3 = Web3(Web3.HTTPProvider(BC_URL))
+        if not w3.is_connected():
+            raise ConnectionError("Failed to connect to HTTPProvider")
+
+        with open("web3/artifacts/contracts/BYNToken.sol/BYNToken.json") as abi_file:
+            contract_abi = json.load(abi_file)["abi"]
+
+        contract = w3.eth.contract(address=CONTRACT_ADDRESS, abi=contract_abi)
+        token_amount = w3.to_wei(amount_to_get, 'ether')
+        nonce = w3.eth.get_transaction_count(w3.eth.account.from_key(PRIVATE_KEY).address)
+
+        # transaction = contract.functions.transfer(bc_account, token_amount).transact({
+        #     'chainId': w3.eth.chain_id,
+        #     'gas': 200000,  # Adjust the gas limit as needed
+        #     'nonce': nonce,
+        # })
+        transaction = contract.functions.transfer(bc_account, token_amount).build_transaction({
+            'chainId': w3.eth.chain_id,
+            'gas': 200000,  # Adjust the gas limit as needed
+            'nonce': nonce,
+        })
+        signed_txn = w3.eth.account.sign_transaction(transaction, PRIVATE_KEY)
+
+        try:
+            tx_hash = w3.eth.send_raw_transaction(signed_txn.rawTransaction)
+            w3.eth.wait_for_transaction_receipt(tx_hash)
+            print(f"Transaction sent! Hash: {tx_hash.hex()}")
+        except Exception as e:
+            account.amount += amount
+            account.save()
+            raise e

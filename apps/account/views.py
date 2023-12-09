@@ -1,10 +1,14 @@
 import decimal
+import json
+from web3 import Web3
 from django.shortcuts import render, redirect
 from django.views import View
 from apps.account.services.account_service import AccountService
 from apps.account.forms import AccountCreateForm, AccountTransferForm
+from apps.account.services.validators import validate_decimal_value
 from utils.exceptions import AuthException, NotFound
 from utils.permissions import logged_in
+from urllib.parse import parse_qs
 from utils.exceptions import CustomValueError
 from django.http import JsonResponse
 
@@ -124,3 +128,59 @@ class AccountTransferView(View):
             return render(request, template_name="account/account_detail.html", context=context)
 
         return redirect("account_list")
+
+
+class AccountTokenView(View):
+    service = AccountService()
+
+    def get_account(self, request, pk, context):
+        account = self.service.retrieve_account_by_pk(pk=pk)
+        if not account:
+            raise NotFound("Account does not exist")
+        if account.owner != request.user:
+            raise AuthException()
+        context["account"] = self.service.get_account_context(account)
+
+    @logged_in
+    def post(self, request, pk):
+        parsed_data = parse_qs(request.body.decode("utf-8"))
+        data = {key: value[0] if len(value) == 1 else value for key, value in parsed_data.items()}
+        context = {}
+        try:
+            data["amount"] = decimal.Decimal(data["amount"])
+        except KeyError:
+            context = {"token": True, "content": "Invalid amount"}
+            self.get_account(request, pk, context)
+            return render(request, template_name="account/account_detail.html", context=context)
+
+        if validate_decimal_value(data["amount"]):
+            try:
+                if len(data["bc_account"]) == 42:
+                    amount = data["amount"]
+                    bc_account = Web3.to_checksum_address(data["bc_account"])
+                    account = self.service.retrieve_account_by_pk(pk=pk)
+                    if not account:
+                        raise NotFound("Account does not exist")
+                    if account.owner != request.user:
+                        raise AuthException()
+                    else:
+                        self.service.exchange_for_token(account, amount, bc_account)
+                        context["account"] = self.service.get_account_context(account)
+                        return render(request, template_name="account/account_detail.html", context=context)
+                else:
+                    self.get_account(request, pk, context)
+                    context["token"] = True
+                    context["content"] = "Invalid blockchain account"
+                    return render(request, template_name="account/account_detail.html", context=context)
+            except KeyError:
+                self.get_account(request, pk, context)
+                context["token"] = True
+                context["content"] = "Invalid blockchain account"
+                return render(request, template_name="account/account_detail.html", context=context)
+        else:
+            self.get_account(request, pk, context)
+            context["token"] = True
+            context["content"] = "Invalid amount"
+            return render(request, template_name="account/account_detail.html", context=context)
+
+

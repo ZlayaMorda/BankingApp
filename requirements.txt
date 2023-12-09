@@ -7,4 +7,5 @@ requests==2.31.0
 django-crispy-forms
 crispy-bootstrap5
 django-ses==3.5.2
+web3==6.11.4
 coverage==7.3.2
