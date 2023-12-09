@@ -1,5 +1,5 @@
 <!-- Button trigger modal -->
-<button type="button" class="btn btn-primary w-100" data-bs-toggle="modal" data-bs-target="#createTokenModal">
+<button type="button" class="btn btn-primary w-100" data-bs-toggle="modal" data-bs-target="#createTokenModal" id="accountBuyToken">
     Buy Tokens
 </button>
 
@@ -26,6 +26,7 @@
                         <!-- Field limited to 42 characters in length -->
                         <label for="bc_account">Enter account:</label><br>
                         <input onclick="getAccount()" type="text" id="id_bc_account" name="bc_account" maxlength="42"><br><br>
+                        <a>{{ content }}</a>
                         {% csrf_token %}
                         <button type="submit" class="btn btn-primary">Change</button>
                     </form>
