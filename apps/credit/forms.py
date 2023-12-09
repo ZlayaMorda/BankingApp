@@ -11,9 +11,7 @@ class CreditCreateForm(forms.Form):
 
     durations_list = list(set(i.duration_in_month for i in descriptions))
     durations_list.sort()
-    print(durations_list)
     durations_list.reverse()
-    print(durations_list)
     description_duration = tuple((value, value) for value in durations_list)
     rate_percent = RatePercent().calculate_rate_percent(description_duration[0][0], PAYMENT_CHOICES[1][0])
 
