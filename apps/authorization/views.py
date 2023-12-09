@@ -54,7 +54,7 @@ def user_sign_in(request):
 
 
 def user_sign_in_code(request):
-    response = HttpResponseRedirect("/")
+    response = HttpResponseRedirect("/account/list")
 
     if request.method == "POST":
         form = CodeForm(request.POST)
