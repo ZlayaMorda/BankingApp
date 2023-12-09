@@ -43,3 +43,11 @@ class AccountCreateView(View):
         if form.is_valid():
             self.service.create_account(request.user, form)
         return redirect('account_list')
+
+
+class AccountDeleteView(View):
+    service = AccountService()
+
+    def delete(self, request, pk):
+        self.service.delete_account(pk)
+        return redirect('account_list')
