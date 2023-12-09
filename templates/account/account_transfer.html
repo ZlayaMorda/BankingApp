@@ -13,7 +13,7 @@
             </div>
             <div class="modal-body">
 
-                <form method="post" action="{% url 'account_create' %}">
+                <form method="post" action="{% url 'account_transfer' pk=account.id %}">
                     {% csrf_token %}
 
                     <div class="mb-3">
