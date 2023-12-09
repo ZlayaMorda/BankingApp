@@ -73,6 +73,7 @@
             </div>
             <div class="card-footer">
                 <div class="row" style="justify-content: center">
+                    <div onclick="connect()" class="col-sm-2 mx-1 btn btn-info ">Buy Tokens</div>
                     <div class="col-sm-2 mx-1">{% include 'account/account_transfer.html' %}</div>
                     {% csrf_token %}
                     <div onclick="deleteAccount()" class="col-sm-2 mx-1 btn btn-danger">Delete</div>
