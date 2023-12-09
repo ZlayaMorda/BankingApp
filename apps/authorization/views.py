@@ -16,7 +16,7 @@ def user_sign_up(request):
             return redirect("sign_in")
     else:
         form = UserSignUpForm()
-    return render(request, "authorization/sign_in.html", {"form": form})
+    return render(request, "authorization/sign_up.html", {"form": form})
 
 
 def user_sign_in(request):
