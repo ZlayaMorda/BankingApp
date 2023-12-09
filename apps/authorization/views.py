@@ -8,6 +8,7 @@ from apps.authorization.services.code_generation import Code
 from apps.authorization.services.custom_jwt import CustomJwt
 from apps.authorization.services.send_auth_email import AuthEmail
 
+
 def user_sign_up(request):
     if request.method == "POST":
         form = UserSignUpForm(request.POST)
