@@ -1,4 +1,3 @@
-from botocore.vendored.requests.packages.urllib3.exceptions import ResponseError
 from django.contrib.auth.hashers import check_password
 from django.shortcuts import render, redirect
 from django.http import HttpResponseRedirect
