@@ -16,6 +16,7 @@
                         </tr>
                     </thead>
                     <tbody>
+                    {% if credits %}
                         {% for credit in credits %}
                             <tr {% if forloop.counter|divisibleby:2 %}class="table-secondary"{% endif %}>
                                 <td>{{ credit.credit_uuid }}</td>
@@ -27,6 +28,7 @@
                                 </td>
                             </tr>
                         {% endfor %}
+                    {% endif %}
                     </tbody>
                 </table>
             </div>

@@ -14,7 +14,7 @@ class UserSignUpForm(BaseUserCreationForm):
 
     class Meta:
         model = CustomUser
-        fields = ("first_name", "last_name", "email", "password1", "password2")
+        fields = ("first_name", "last_name", "email", "password1", "password2", "passport_identifier")
 
 
 class UserSignInForm(forms.Form):

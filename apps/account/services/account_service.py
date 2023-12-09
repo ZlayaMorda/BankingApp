@@ -6,6 +6,7 @@ import json
 from apps.account.services.third_party_api import ExchangeRateAPI
 from apps.credit.models import Credit
 from banking.settings import BC_URL, CONTRACT_ADDRESS, PRIVATE_KEY
+from utils.exceptions import CustomValueError
 
 ACCOUNT_CONTEXT = {
     "owner": {
@@ -57,8 +58,7 @@ class AccountService:
 
     def create_account(self, user, form):
         currency = form.cleaned_data['currency']
-        Account.objects.create(owner=user, currency=currency)
-        return True
+        return Account.objects.create(owner=user, currency=currency)
 
     def delete_account(self, pk):
         credit = Credit.objects.filter(account_uuid_id=pk).first()
@@ -71,13 +71,13 @@ class AccountService:
     def execute_account_transaction(self, source_account_uuid, destination_account_uuid, amount):
         with transaction.atomic():
             if source_account_uuid == destination_account_uuid:
-                raise ValueError('Using the same source and destination accounts is not allowed.')
+                raise CustomValueError('Using the same source and destination accounts is not allowed.')
 
             source_account = Account.objects.get(account_uuid=source_account_uuid)
             destination_account = Account.objects.get(account_uuid=destination_account_uuid)
 
             if source_account.amount - amount < 0:
-                raise ValueError('Insufficient funds')
+                raise CustomValueError('Insufficient funds')
 
             amount_to_send = ExchangeRateAPI().calculate_amount(source_account.currency,
                                                                 destination_account.currency, amount)

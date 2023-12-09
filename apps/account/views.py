@@ -3,14 +3,14 @@ import json
 from web3 import Web3
 from django.shortcuts import render, redirect
 from django.views import View
-from django.http import HttpResponse
 from apps.account.services.account_service import AccountService
-from django.contrib.auth.models import AnonymousUser
 from apps.account.forms import AccountCreateForm, AccountTransferForm
 from apps.account.services.validators import validate_decimal_value
 from utils.exceptions import AuthException, NotFound
 from utils.permissions import logged_in
 from urllib.parse import parse_qs
+from utils.exceptions import CustomValueError
+from django.http import JsonResponse
 
 
 class AccountDetailView(View):
@@ -21,9 +21,11 @@ class AccountDetailView(View):
     @logged_in
     def get(self, request, pk):
         context = {
-            'account_transfer_form': self.account_transfer_form(request.user),
+            'account_transfer_form': self.account_transfer_form(request.user)
         }
         account = self.service.retrieve_account_by_pk(pk=pk)
+        if not account:
+            raise NotFound("Account does not exist")
         if account.owner == request.user:
             if account:
                 context['account'] = self.service.get_account_context(account)
@@ -63,11 +65,13 @@ class AccountDeleteView(View):
     service = AccountService()
 
     @logged_in
-    def delete(self, request, pk):
+    def post(self, request, pk):
         account = self.service.retrieve_account_by_pk(pk=pk)
+        if not account:
+            raise NotFound("Account does not exist")
         if account.owner == request.user:
             if self.service.delete_account(pk):
-                return redirect("account_list")
+                return JsonResponse({'status': '200'})
             else:
                 return redirect("account_detail", pk)
         else:
@@ -81,18 +85,23 @@ class AccountTransferView(View):
     def post(self, request, pk):
         form = AccountTransferForm(request.user, request.POST)
         context = {"account_transfer_form": form}
+
+        if request.POST.get("destination_account", None) and request.POST.get("own_accounts", None) != '--':
+            raise CustomValueError('Only one destination field must be chosen')
+
         if form.is_valid():
             amount = form.cleaned_data["amount"]
             amount = decimal.Decimal(amount)
             destination = form.cleaned_data["destination_account"]
             source = pk
             own_account = form.cleaned_data["own_accounts"]
+            account = self.service.retrieve_account_by_pk(pk=pk)
+            if not account:
+                raise NotFound("Account does not exist")
+            if account.owner != request.user:
+                raise AuthException()
             if own_account != "--":
-                account = self.service.retrieve_account_by_pk(pk=pk)
-                if account.owner == request.user:
-                    self.service.execute_account_transaction(str(source), str(own_account), amount)
-                else:
-                    raise AuthException()
+                self.service.execute_account_transaction(str(source), str(own_account), amount)
             elif destination is not None:
                 self.service.execute_account_transaction(str(source), str(destination), amount)
             else:
@@ -101,6 +110,10 @@ class AccountTransferView(View):
                 return render(request, template_name="account/account_detail.html", context=context)
         else:
             account = self.service.retrieve_account_by_pk(pk=pk)
+            if not account:
+                raise NotFound("Account does not exist")
+            if account.owner != request.user:
+                raise AuthException()
             context["account"] = self.service.get_account_context(account)
             return render(request, template_name="account/account_detail.html", context=context)
 

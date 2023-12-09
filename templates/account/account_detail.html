@@ -28,11 +28,22 @@
 
         const deleteEndpoint = '{% url 'account_delete' pk=account.id %}';
         fetch(deleteEndpoint, {
-          method: 'DELETE',
+          method: 'POST',
           credentials: "same-origin",
           headers: {'Content-Type': 'application/json', 'X-CSRFTOKEN': csrftoken},
           body: JSON.stringify({action:'delete_account'})
-        })
+        }).then((e) => {if (e.status === 200) {
+            $('#deleteAccountModal').modal('show')
+        }})
+    }
+
+    function submit_handler() {
+        let a = '{{ account_transfer_form.errors }}';
+        console.log(a)
+        if (a) {
+            let accountTransferButton = document.getElementById("accountTransferButton");
+            accountTransferButton.click(); // this will trigger the click event
+        }
     }
 
     function submit_token_modal() {
@@ -45,6 +56,7 @@
     }
 
     document.addEventListener("DOMContentLoaded", (event) => {
+        submit_handler();
         submit_token_modal();
     });
 </script>
@@ -52,6 +64,7 @@
 
 
 {% block content %}
+        {% include 'account/account_delete.html' %}
 
         <div class="container mt-4">
         <div class="card">
@@ -94,7 +107,6 @@
             </div>
         </div>
     </div>
-{#    <button onclick="getAccount()" class="enableEthereumButton">Enable Ethereum</button>#}
-{#    <h2>Account: <span class="showAccount"></span></h2>#}
+
 
 {% endblock %}
