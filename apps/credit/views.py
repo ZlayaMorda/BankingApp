@@ -12,8 +12,6 @@ class CreditCreate(View):
     service_credit = CreditService()
     service_credit_description = CreditDescriptionService()
     template_form = "credit/credit_create.html"
-    model_description = CreditDescription
-    model_credit = Credit
     rate_percent = RatePercent()
 
     def post(self, request):
@@ -23,16 +21,13 @@ class CreditCreate(View):
             duration = form.cleaned_data["duration_in_month"]
             payment = form.cleaned_data["payment_type"]
             sum_of_credit = form.cleaned_data["sum_of_credit"]
+            account = form.cleaned_data["account"]
             credit_percent = self.rate_percent.calculate_rate_percent(duration, payment)
-            if "take" in request.POST:
-
-                print(f"{duration}, {sum_of_credit}, {payment}, {credit_percent}")
-                # CreditDescription.objects.create(
-                #     duration_in_month=duration,
-                #     rate_index=rate,
-                #     payment_type=payment)
+            if "take" in request.POST and account != "":
+                self.service_credit.calculate_and_create(request.user, int(duration), payment,
+                                                         float(sum_of_credit), account, credit_percent)
             if "calculate" in request.POST:
-                sum_to_pay = float(sum_of_credit) + float(sum_of_credit) * credit_percent
+                sum_to_pay = round(float(sum_of_credit) + float(sum_of_credit) * credit_percent, 2)
 
         return render(request, template_name=self.template_form,
                       context={"form": form, "sum_to_pay": sum_to_pay})
