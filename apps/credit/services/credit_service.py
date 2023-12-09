@@ -1,4 +1,5 @@
 from apps.credit.models import Credit, CreditDescription
+from utils.exceptions import NotFound
 
 
 class CreditDescriptionService:
@@ -14,7 +15,10 @@ class CreditDescriptionService:
         return self.model.objects.filter(payment_type=payment)
 
     def get_credit_rate(self, duration, payment):
-        return float(self.model.objects.filter(duration_in_month=duration, payment_type=payment).first().rate_index)
+        try:
+            return float(self.model.objects.filter(duration_in_month=duration, payment_type=payment).first().rate_index)
+        except Exception:
+            raise NotFound("Not valid credit description")
 
 
 class CreditService:
