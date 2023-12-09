@@ -1,11 +1,14 @@
 from django.shortcuts import render, redirect
 from django.views import View
-from django.http import HttpResponse
+from django.db import IntegrityError
+from django.core.exceptions import ValidationError
 
+from apps.account.services.account_service import AccountService
 from apps.credit.models import CreditDescription, Credit, PAYMENT_CHOICES
 from apps.credit.services.credit_service import CreditDescriptionService, CreditService
-from apps.credit.forms import CreditCreateForm
+from apps.credit.forms import CreditCreateForm, CreditChangeAccount, CreditPayment
 from apps.credit.utils.rate_percent import RatePercent
+from utils.exceptions import AuthException
 
 
 class CreditCreate(View):
@@ -17,6 +20,7 @@ class CreditCreate(View):
     def post(self, request):
         form = CreditCreateForm(request.user, request.POST)
         sum_to_pay = 0.
+        credit_percent = 0.
         if form.is_valid():
             duration = form.cleaned_data["duration_in_month"]
             payment = form.cleaned_data["payment_type"]
@@ -26,16 +30,17 @@ class CreditCreate(View):
             if "take" in request.POST and account != "":
                 self.service_credit.calculate_and_create(request.user, int(duration), payment,
                                                          float(sum_of_credit), account, credit_percent)
+                return redirect("credit_list")
             if "calculate" in request.POST:
                 sum_to_pay = round(float(sum_of_credit) + float(sum_of_credit) * credit_percent, 2)
 
         return render(request, template_name=self.template_form,
-                      context={"form": form, "sum_to_pay": sum_to_pay})
+                      context={"form": form, "sum_to_pay": sum_to_pay, "rate_percent": credit_percent})
 
     def get(self, request):
         form = CreditCreateForm(request.user)
         return render(request, template_name=self.template_form,
-                      context={"form": form})
+                      context={"form": form, "rate_percent": form.rate_percent})
 
 
 class CreditLoadPayment(View):
@@ -85,3 +90,69 @@ class RatePercentView(View):
 
         return render(request, template_name=self.template_payment, context={"rate_percent": rate_percent})
 
+
+class CreditList(View):
+    service = CreditService()
+    template = "credit/credit_list.html"
+
+    def get(self, request):
+        context = {}
+        user_credits = self.service.retrieve_user_credits(request.user)
+        context["credits"] = self.service.get_credit_context(user_credits, True)
+
+        return render(request, template_name=self.template, context=context)
+
+
+class CreditDetail(View):
+    service_credit = CreditService()
+    service_account = AccountService()
+    template = "credit/credit_detail.html"
+
+    def get(self, request, pk):
+        form_account = CreditChangeAccount(request.user)
+        form_payment = CreditPayment()
+        context = {"form_account": form_account, "form_payment": form_payment}
+        credit = self.service_credit.retrieve_credit_pk(pk)
+        if credit.owner_id == request.user.user_uuid:
+            context["credit"] = self.service_credit.get_credit_context(credit)
+            return render(request, template_name=self.template, context=context)
+        else:
+            raise AuthException()
+
+    def post(self, request, pk):
+        form_account_post = CreditChangeAccount(request.user, request.POST)
+        form_payment_post = CreditPayment(request.POST)
+        form_account = CreditChangeAccount(request.user)
+        form_payment = CreditPayment()
+
+        credit = self.service_credit.retrieve_credit_pk(pk)
+
+        if credit.owner_id == request.user.user_uuid:
+            validation_state = ""
+            if "change_button" in request.POST:
+                form_account = form_account_post
+                if form_account_post.is_valid():
+                    account_form = form_account_post.cleaned_data["account"]
+                    account = self.service_account.retrieve_account_by_pk(account_form)
+                    if account.owner_id == request.user.user_uuid:
+                        self.service_credit.update_credit_account(pk, account)
+                    else:
+                        raise AuthException()
+            elif "payment_button" in request.POST:
+                form_payment = form_payment_post
+                if form_payment_post.is_valid():
+                    sum_to_pay = form_payment_post.cleaned_data["payment"]
+                    try:
+                        self.service_credit.credit_payout(pk, sum_to_pay)
+                    except IntegrityError:
+                        validation_state = "Payment Error, try again"
+                    except ValidationError as e:
+                        validation_state = e.message
+
+            context = {"form_account": form_account, "form_payment": form_payment,
+                       "validation_state": validation_state}
+            credit = self.service_credit.retrieve_credit_pk(pk)
+            context["credit"] = self.service_credit.get_credit_context(credit)
+            return render(request, template_name=self.template, context=context)
+        else:
+            raise AuthException()

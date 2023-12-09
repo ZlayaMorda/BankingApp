@@ -28,6 +28,7 @@ class Credit(HistorizedModel):
                                          blank=False, related_name="credits")
     amount_to_pay = models.DecimalField(max_digits=14, decimal_places=2, default=0.00)
     currency = models.CharField(max_length=64, choices=CURRENCY_CHOICES, default="BYN")
-    next_payout = models.DateTimeField()
+    next_payout = models.DateTimeField(null=True)
     one_off_payment = models.DecimalField(max_digits=14, decimal_places=2, default=0.00)
+    one_off_current_payment = models.DecimalField(max_digits=14, decimal_places=2, default=0.00)
     payout_count = models.IntegerField()
