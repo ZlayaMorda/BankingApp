@@ -35,6 +35,23 @@
         })
     }
 </script>
+{#    <script>#}
+{#        const showAccount = document.querySelector('.showAccount');#}
+{#        function getAccount() {#}
+{#          const accounts = window.ethereum.request({ method: 'eth_requestAccounts' })#}
+{#            .catch((err) => {#}
+{#              if (err.code === 4001) {#}
+{#                // EIP-1193 userRejectedRequest error#}
+{#                // If this happens, the user rejected the connection request.#}
+{#                console.log('Please connect to MetaMask.');#}
+{#              } else {#}
+{#                console.error(err);#}
+{#              }#}
+{#            });#}
+{#          const account = accounts[0];#}
+{#          showAccount.innerHTML = account;#}
+{#        }#}
+{#    </script>#}
 {% endblock %}
 
 
@@ -73,7 +90,7 @@
             </div>
             <div class="card-footer">
                 <div class="row" style="justify-content: center">
-                    <div onclick="connect()" class="col-sm-2 mx-1 btn btn-info ">Buy Tokens</div>
+                    <div onclick="" class="col-sm-2 mx-1 btn btn-info ">Buy Tokens</div>
                     <div class="col-sm-2 mx-1">{% include 'account/account_transfer.html' %}</div>
                     {% csrf_token %}
                     <div onclick="deleteAccount()" class="col-sm-2 mx-1 btn btn-danger">Delete</div>
@@ -81,6 +98,7 @@
             </div>
         </div>
     </div>
-
+{#    <button onclick="getAccount()" class="enableEthereumButton">Enable Ethereum</button>#}
+{#    <h2>Account: <span class="showAccount"></span></h2>#}
 
 {% endblock %}
