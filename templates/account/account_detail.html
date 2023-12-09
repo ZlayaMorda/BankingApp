@@ -28,18 +28,19 @@
 
         const deleteEndpoint = '{% url 'account_delete' pk=account.id %}';
         fetch(deleteEndpoint, {
-          method: 'DELETE',
+          method: 'POST',
           credentials: "same-origin",
           headers: {'Content-Type': 'application/json', 'X-CSRFTOKEN': csrftoken},
           body: JSON.stringify({action:'delete_account'})
-        })
+        }).then((e) => {if (e.status === 200) {
+            $('#deleteAccountModal').modal('show')
+        }})
     }
 
     function submit_handler() {
         let a = '{{ account_transfer_form.errors }}';
         console.log(a)
         if (a) {
-            console.log("modal opened"); //send with ajax?
             let accountTransferButton = document.getElementById("accountTransferButton");
             accountTransferButton.click(); // this will trigger the click event
         }
@@ -54,6 +55,7 @@
 
 
 {% block content %}
+        {% include 'account/account_delete.html' %}
 
         <div class="container mt-4">
         <div class="card">
