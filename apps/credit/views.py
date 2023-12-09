@@ -8,7 +8,7 @@ from apps.credit.models import CreditDescription, Credit, PAYMENT_CHOICES
 from apps.credit.services.credit_service import CreditDescriptionService, CreditService
 from apps.credit.forms import CreditCreateForm, CreditChangeAccount, CreditPayment
 from apps.credit.utils.rate_percent import RatePercent
-from utils.exceptions import AuthException
+from utils.exceptions import AuthException, NotFound
 from utils.permissions import logged_in
 
 
@@ -121,6 +121,8 @@ class CreditDetail(View):
         form_payment = CreditPayment()
         context = {"form_account": form_account, "form_payment": form_payment}
         credit = self.service_credit.retrieve_credit_pk(pk)
+        if not credit:
+            raise NotFound("Credit does not exist")
         if credit.owner_id == request.user.user_uuid:
             context["credit"] = self.service_credit.get_credit_context(credit)
             return render(request, template_name=self.template, context=context)
@@ -135,6 +137,8 @@ class CreditDetail(View):
         form_payment = CreditPayment()
 
         credit = self.service_credit.retrieve_credit_pk(pk)
+        if not credit:
+            raise NotFound("Credit does not exist")
 
         if credit.owner_id == request.user.user_uuid:
             validation_state = ""
@@ -164,6 +168,8 @@ class CreditDetail(View):
             context = {"form_account": form_account, "form_payment": form_payment,
                        "validation_state": validation_state}
             credit = self.service_credit.retrieve_credit_pk(pk)
+            if not credit:
+                return redirect("credit_list")
             context["credit"] = self.service_credit.get_credit_context(credit)
             return render(request, template_name=self.template, context=context)
         else:
