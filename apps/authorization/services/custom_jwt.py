@@ -1,18 +1,13 @@
 import datetime
 import jwt
 from django.contrib.auth import get_user_model
-
-from apps.authorization.forms import UserSignInForm
-from banking.settings import SECRET_KEY
-from django.http import HttpResponse
-from django.template import loader
-
+from banking.settings import SECRET_KEY, EXPIRE_MINUTES, EXPIRE_DAYS
 from utils.exceptions import AuthException, NotFound
 
 
 class CustomJwt:
     @staticmethod
-    def generate_jwt(user, days=0, minutes=5):  # TODO set in env time
+    def generate_jwt(user, days=EXPIRE_DAYS, minutes=EXPIRE_MINUTES):
         token_payload = {
             "user_uuid": str(user.user_uuid),
             "exp": datetime.datetime.utcnow() + datetime.timedelta(days=days, minutes=minutes),
@@ -42,7 +37,7 @@ class CustomJwt:
         return user
 
     @staticmethod
-    def set_cookie_jwt(response, jwt_token, days=0, minutes=5):
+    def set_cookie_jwt(response, jwt_token, days=EXPIRE_DAYS, minutes=EXPIRE_MINUTES):
 
         max_age = days * 24 * 60 * 60 + minutes * 60
         expires = datetime.datetime.strftime(
