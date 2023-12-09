@@ -1,6 +1,7 @@
 version: '3.8'
 services:
   web:
+    container_name: banking_web
     build: .
     volumes:
       - .:/app
@@ -14,6 +15,7 @@ services:
 #        condition: service_healthy
   db:
     image: postgres:16-alpine
+    container_name: banking_db
 #    healthcheck:
 #      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
 #      interval: 5s
@@ -27,6 +29,7 @@ services:
       - .env.dev
   redis:
     image: redis:7.2.3-alpine
+    container_name: banking_redis
 #    command: /bin/sh -c "redis-server --requirepass $$REDIS_PASSWORD"
     ports:
       - "6379:6379"
