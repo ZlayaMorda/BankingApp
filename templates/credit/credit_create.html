@@ -4,13 +4,13 @@
     <form method="POST">
         {% csrf_token %}
         {{ form.as_p }}
-        <a id="rate_percent">Rate percent: {{form.rate_percent}}</a>
+        <a id="rate_percent">Rate percent: {{rate_percent}}</a>
         <br><br>
-        <button type="submit" name="calculate">Calculate</button>
+        <button type="submit" name="calculate" class="btn btn-info">Calculate</button>
         <br><br>
         <a id="calculated_sum">Sum to pay for the credit: {{sum_to_pay}}</a>
         <br><br>
-        <button type="submit" name="take">Take</button>
+        <button type="submit" name="take" class="btn btn-success">Take</button>
     </form>
 
     <script>
@@ -84,6 +84,6 @@
                     error: function(data){alert("Can't load data about rate")}
                 }
             );
-        };
+        }
     </script>
 {% endblock %}
