@@ -17,7 +17,7 @@ class CreditCreate(View):
     rate_percent = RatePercent()
 
     def post(self, request):
-        form = CreditCreateForm(request.POST)
+        form = CreditCreateForm(request.user, request.POST)
         sum_to_pay = 0.
         if form.is_valid():
             duration = form.cleaned_data["duration_in_month"]
@@ -38,7 +38,7 @@ class CreditCreate(View):
                       context={"form": form, "sum_to_pay": sum_to_pay})
 
     def get(self, request):
-        form = CreditCreateForm()
+        form = CreditCreateForm(request.user)
         return render(request, template_name=self.template_form,
                       context={"form": form})
 
