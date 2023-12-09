@@ -55,8 +55,7 @@ class AccountService:
 
     def create_account(self, user, form):
         currency = form.cleaned_data['currency']
-        Account.objects.create(owner=user, currency=currency)
-        return True
+        return Account.objects.create(owner=user, currency=currency)
 
     def delete_account(self, pk):
         credit = Credit.objects.filter(account_uuid_id=pk).first()
