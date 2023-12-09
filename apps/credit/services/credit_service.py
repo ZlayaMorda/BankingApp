@@ -71,7 +71,7 @@ class CreditService:
 
     def get_credit_context(self, credit, many: bool = False):
         if not credit:
-            return CREDIT_CONTEXT
+            return None
 
         if not many:
             context = self.__init_context(credit)
