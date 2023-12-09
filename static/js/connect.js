@@ -5,7 +5,9 @@ function connect() {
          .request({ method: "eth_requestAccounts" })
          .then((accounts) => {
            const account = accounts[0]
-
+            if (account) {
+                alert(`Wallet connected: ${account}`)
+            }
            console.log(`Wallet connected: ${account}`);
         }).catch((error) => {
            // Handle error
