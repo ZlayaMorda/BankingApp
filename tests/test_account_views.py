@@ -17,7 +17,12 @@ User = get_user_model()
 class TestAccountViews(TestCase):
     def setUp(self):
         self.factory = RequestFactory()
-        self.user = User.objects.create(first_name='John', last_name='Doe', password='test123321', email='test@gmail.com', passport_identifier='1000000A000AA0')
+        self.user = User.objects.create(
+            first_name='John',
+            last_name='Doe',
+            password='test123321',
+            email='test@gmail.com',
+            passport_identifier='1000000A000AA0')
         self.account_service = AccountService()
 
     def test_account_list_view(self):
