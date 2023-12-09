@@ -1,7 +1,6 @@
 .idea
 .env.dev
 .env.prod
-env
 
 # Django stuff:
 *.log
@@ -60,3 +59,6 @@ MANIFEST
 # Installer logs
 pip-log.txt
 pip-delete-this-directory.txt
+
+data/
+venv
