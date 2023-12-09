@@ -12,9 +12,9 @@ class ExceptionMiddleware:
             print(response)
         except AuthException as e:
             # response = HttpResponse(status=e.status_code, context={"message": e.message}, content="error.html")
-            return render(request, "error.html", {"message": e.message})
+            return render(request, "error/error.html", {"message": e.message})
         except NotFound as e:
-            return render(request, "error.html", {"message": e.message})
+            return render(request, "error/error.html", {"message": e.message})
         except Exception as e:
             response = HttpResponseServerError("Oops! Something went wrong.")
 
