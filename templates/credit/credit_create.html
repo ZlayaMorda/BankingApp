@@ -4,31 +4,16 @@
     <form method="POST">
         {% csrf_token %}
         {{ form.as_p }}
-        <a>{{state}}</a>
-        <br>
+        <a>Rate index: {{form.credit_rate}}</a>
+        <br><br>
         <button type="submit">Submit</button>
     </form>
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
     <script>
     $("#id_duration_in_month").change(function()
     {
-        function getCookie(cookieName) {
-            const name = `${cookieName}=`;
-            const decodedCookie = decodeURIComponent(document.cookie);
-            const cookieArray = decodedCookie.split(';');
-
-            for (let i = 0; i < cookieArray.length; i++) {
-                let cookie = cookieArray[i];
-                while (cookie.charAt(0) === ' ') {
-                    cookie = cookie.substring(1);
-                }
-                if (cookie.indexOf(name) === 0) {
-                    return cookie.substring(name.length, cookie.length);
-                }
-            }
-            return '';
-        }
         var duration_in_month = $(this).val();
+        var remember_type = $("#id_payment_type").val()
         const csrftoken = getCookie('csrftoken');
         $.ajax(
             {
@@ -36,12 +21,13 @@
                 type:"GET",
                 url: "{% url 'ajax_load_payments' %}",
                 data: {
-                  'duration_in_month': duration_in_month
+                    'duration_in_month': duration_in_month,
                 },
                 success: function (data) {
-                  $("#id_payment_type").html(data);
+                    $("#id_payment_type").html(data);
+                    $("#id_payment_type").val(remember_type);
                 },
-                error: function(data){alert("Can't load data about credit")}
+                error: function(data){alert("Can't load data about credit");}
             }
         );
     });
@@ -49,23 +35,8 @@
     <script>
         $("#id_payment_type").change(function()
         {
-            function getCookie(cookieName) {
-                const name = `${cookieName}=`;
-                const decodedCookie = decodeURIComponent(document.cookie);
-                const cookieArray = decodedCookie.split(';');
-
-                for (let i = 0; i < cookieArray.length; i++) {
-                    let cookie = cookieArray[i];
-                    while (cookie.charAt(0) === ' ') {
-                        cookie = cookie.substring(1);
-                    }
-                    if (cookie.indexOf(name) === 0) {
-                        return cookie.substring(name.length, cookie.length);
-                    }
-                }
-                return '';
-            }
             var payment_type = $(this).val();
+            var remember_duration = $("#id_duration_in_month").val()
             const csrftoken = getCookie('csrftoken');
             $.ajax(
                 {
@@ -73,16 +44,16 @@
                     type:"GET",
                     url: "{% url 'ajax_load_durations' %}",
                     data: {
-                      'payment_type': payment_type
+                        'payment_type': payment_type,
+                        'remember_duration': remember_duration
                     },
                     success: function (data) {
-                      $("#id_duration_in_month").html(data);
+                        $("#id_duration_in_month").html(data);
+                        $("#id_duration_in_month").val(remember_duration)
                     },
                     error: function(data){alert("Can't load data about credit")}
                 }
             );
-
-
         });
   </script>
 {% endblock %}

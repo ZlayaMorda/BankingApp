@@ -1,3 +1,7 @@
 {% for payment in payment_types %}
-<option value="{{ payment.0 }}">{{ payment.1 }}</option>
+{#    {% if payment.1 == chose_type %}#}
+{#        <option value="1" selected="selected">1</option>#}
+{#    {% else %}#}
+        <option value="{{ payment.0 }}">{{ payment.1 }}</option>
+{#    {% endif %}#}
 {% endfor %}
