@@ -39,7 +39,7 @@ class CreditDescriptionService:
         return self.model.objects.filter(duration_in_month=duration)
 
     def get_with_payment(self, payment):
-        return self.model.objects.filter(payment_type=payment)
+        return self.model.objects.filter(payment_type=payment).order_by("duration_in_month")
 
     def get_credit_rate(self, duration, payment):
         try:
