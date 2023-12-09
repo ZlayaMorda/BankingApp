@@ -1,10 +1,11 @@
 const hre = require("hardhat");
 
 async function main() {
+  const owner = await hre.ethers.getSigner("0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266")
 
   const initialSupply = hre.ethers.parseEther("1000000000000000");
-
-  const token = await hre.ethers.deployContract("BYNToken", [initialSupply]);
+  const Token = await hre.ethers.getContractFactory("BYNToken")
+  const token = await Token.connect(owner).deploy(initialSupply);
 
   await token.waitForDeployment();
 
