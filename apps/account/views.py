@@ -81,13 +81,28 @@ class AccountDeleteView(View):
 class AccountTransferView(View):
     service = AccountService()
 
+    def get_account(self, request, pk, context):
+        account = self.service.retrieve_account_by_pk(pk=pk)
+        if not account:
+            raise NotFound("Account does not exist")
+        if account.owner != request.user:
+            raise AuthException()
+        context["account"] = self.service.get_account_context(account)
+
     @logged_in
     def post(self, request, pk):
         form = AccountTransferForm(request.user, request.POST)
         context = {"account_transfer_form": form}
 
         if request.POST.get("destination_account", None) and request.POST.get("own_accounts", None) != '--':
-            raise CustomValueError('Only one destination field must be chosen')
+            form.add_error("destination_account", "Only one destination field must be chosen")
+            self.get_account(request, pk, context)
+            return render(request, template_name="account/account_detail.html", context=context)
+
+        if not request.POST.get("destination_account", None) and request.POST.get("own_accounts", None) == '--':
+            form.add_error("destination_account", "Destination must be chosen")
+            self.get_account(request, pk, context)
+            return render(request, template_name="account/account_detail.html", context=context)
 
         if form.is_valid():
             amount = form.cleaned_data["amount"]
@@ -109,12 +124,7 @@ class AccountTransferView(View):
                 context["account"] = self.service.get_account_context(account)
                 return render(request, template_name="account/account_detail.html", context=context)
         else:
-            account = self.service.retrieve_account_by_pk(pk=pk)
-            if not account:
-                raise NotFound("Account does not exist")
-            if account.owner != request.user:
-                raise AuthException()
-            context["account"] = self.service.get_account_context(account)
+            self.get_account(request, pk, context)
             return render(request, template_name="account/account_detail.html", context=context)
 
         return redirect("account_list")
@@ -122,6 +132,14 @@ class AccountTransferView(View):
 
 class AccountTokenView(View):
     service = AccountService()
+
+    def get_account(self, request, pk, context):
+        account = self.service.retrieve_account_by_pk(pk=pk)
+        if not account:
+            raise NotFound("Account does not exist")
+        if account.owner != request.user:
+            raise AuthException()
+        context["account"] = self.service.get_account_context(account)
 
     @logged_in
     def post(self, request, pk):
@@ -132,29 +150,37 @@ class AccountTokenView(View):
             data["amount"] = decimal.Decimal(data["amount"])
         except KeyError:
             context = {"token": True, "content": "Invalid amount"}
+            self.get_account(request, pk, context)
             return render(request, template_name="account/account_detail.html", context=context)
 
-        if validate_decimal_value(data["amount"]) and len(data["bc_account"]) == 42:
-            amount = data["amount"]
-            bc_account = Web3.to_checksum_address(data["bc_account"])
-            account = self.service.retrieve_account_by_pk(pk=pk)
-            if not account:
-                raise NotFound("Account does not exist")
-            if account.owner != request.user:
-                raise AuthException()
-            else:
-                self.service.exchange_for_token(account, amount, bc_account)
-                context["account"] = self.service.get_account_context(account)
+        if validate_decimal_value(data["amount"]):
+            try:
+                if len(data["bc_account"]) == 42:
+                    amount = data["amount"]
+                    bc_account = Web3.to_checksum_address(data["bc_account"])
+                    account = self.service.retrieve_account_by_pk(pk=pk)
+                    if not account:
+                        raise NotFound("Account does not exist")
+                    if account.owner != request.user:
+                        raise AuthException()
+                    else:
+                        self.service.exchange_for_token(account, amount, bc_account)
+                        context["account"] = self.service.get_account_context(account)
+                        return render(request, template_name="account/account_detail.html", context=context)
+                else:
+                    self.get_account(request, pk, context)
+                    context["token"] = True
+                    context["content"] = "Invalid blockchain account"
+                    return render(request, template_name="account/account_detail.html", context=context)
+            except KeyError:
+                self.get_account(request, pk, context)
+                context["token"] = True
+                context["content"] = "Invalid blockchain account"
                 return render(request, template_name="account/account_detail.html", context=context)
         else:
-            account = self.service.retrieve_account_by_pk(pk=pk)
-            if not account:
-                raise NotFound("Account does not exist")
-            if account.owner != request.user:
-                raise AuthException()
-            context["account"] = self.service.get_account_context(account)
+            self.get_account(request, pk, context)
             context["token"] = True
-            context["content"] = "Invalid amount or address"
+            context["content"] = "Invalid amount"
             return render(request, template_name="account/account_detail.html", context=context)
 
 
