@@ -20,7 +20,9 @@ class Code:
     @staticmethod
     def store(jwt: str):
         try:
-            cache.set(Code.generate_code_6(), jwt)
+            code = Code.generate_code_6()
+            cache.set(code, jwt)
+            return code
         except:
             raise Exception("Code can't be set")
 
