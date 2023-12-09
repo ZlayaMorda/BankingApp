@@ -6,12 +6,16 @@ class Code:
 
     @staticmethod
     def generate_code_6() -> str:
-        return (((((str(random.randint(0, 9)) +
+        code = (((((str(random.randint(0, 9)) +
                 str(random.randint(0, 9))) +
                 str(random.randint(0, 9))) +
                 str(random.randint(0, 9))) +
                 str(random.randint(0, 9))) +
                 str(random.randint(0, 9)))
+
+        # TEMP
+        print(code)
+        return code
 
     @staticmethod
     def store(jwt: str):
