@@ -35,7 +35,8 @@ def user_sign_in(request):
                 Code().store(jwt_token)
 
                 return redirect("sign_in_code")
-            except:
+
+            except Exception as e:
                 return render(request, "sign_in.html",
                               {"state": "Invalid password or identifier", "form": form}, status=401)
         else:
