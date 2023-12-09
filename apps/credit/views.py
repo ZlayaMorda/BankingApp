@@ -63,5 +63,4 @@ class CreditLoadDuration(View):
         tuple_durations = ()
         for i in set(durations):
             tuple_durations += ((i, i),)
-        print(f"---------{durations}-----------")
         return render(request, template_name=self.template_payment, context={"durations": tuple_durations})
