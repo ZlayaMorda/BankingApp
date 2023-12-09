@@ -63,6 +63,6 @@ class CreditService:
             payout_count=payout_count,
             account_uuid=account,
             description_uuid=description,
-            owner_id=user
+            owner_id=user.user_uuid
         )
         credit.save()
