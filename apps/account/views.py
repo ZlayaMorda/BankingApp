@@ -83,12 +83,11 @@ class AccountTransferView(View):
             destination = form.cleaned_data["destination_account"]
             source = pk
             own_account = form.cleaned_data["own_accounts"]
+            account = self.service.retrieve_account_by_pk(pk=pk)
+            if account.owner != request.user:
+                raise AuthException()
             if own_account != "--":
-                account = self.service.retrieve_account_by_pk(pk=pk)
-                if account.owner == request.user:
-                    self.service.execute_account_transaction(str(source), str(own_account), amount)
-                else:
-                    raise AuthException()
+                self.service.execute_account_transaction(str(source), str(own_account), amount)
             elif destination is not None:
                 self.service.execute_account_transaction(str(source), str(destination), amount)
             else:
@@ -97,6 +96,8 @@ class AccountTransferView(View):
                 return render(request, template_name="account/account_detail.html", context=context)
         else:
             account = self.service.retrieve_account_by_pk(pk=pk)
+            if account.owner != request.user:
+                raise AuthException()
             context["account"] = self.service.get_account_context(account)
             return render(request, template_name="account/account_detail.html", context=context)
 
