@@ -1,9 +1,16 @@
 import os
+import environ
 from pathlib import Path
+
+
 
 # Build paths inside the project like this: BASE_DIR / "subdir".
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+env = environ.Env(
+    DEBUG=(bool, False)
+)
+environ.Env.read_env(os.path.join(BASE_DIR, '.env.dev'))
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.environ.get("SECRET_KEY")
@@ -64,12 +71,12 @@ WSGI_APPLICATION = "banking.wsgi.application"
 
 DATABASES = {
    "default": {
-       "ENGINE": os.environ.get("SQL_ENGINE"),
-       "NAME": os.environ.get("POSTGRES_DATABASE"),
-       "USER": os.environ.get("POSTGRES_USER"),
-       "PASSWORD": os.environ.get("POSTGRES_PASSWORD"),
-       "HOST": os.environ.get("POSTGRES_HOST"),
-       "PORT": os.environ.get("POSTGRES_PORT"),
+       "ENGINE": env("SQL_ENGINE"),
+       "NAME": env("POSTGRES_DATABASE"),
+       "USER": env("POSTGRES_USER"),
+       "PASSWORD": env("POSTGRES_PASSWORD"),
+       "HOST": env("POSTGRES_HOST"),
+       "PORT": env("POSTGRES_PORT"),
    }
 }
 
@@ -77,14 +84,14 @@ DATABASES = {
 
 CACHES = {
     "default": {
-        "BACKEND": os.environ.get("REDIS_ENGINE"),
-        "LOCATION": f"redis://{os.environ.get('REDIS_HOST')}:{os.environ.get('REDIS_PORT')}/1",
+        "BACKEND": env("REDIS_ENGINE"),
+        "LOCATION": f"redis://{env('REDIS_HOST')}:{env('REDIS_PORT')}/1",
         # "LOCATION": f"redis://:redis@{os.environ.get('REDIS_HOST')}:{os.environ.get('REDIS_PORT')}/1",
         # "OPTIONS": {
         #     "PASSWORD": os.environ.get("REDIS_PASSWORD"),
         #     "CLIENT_CLASS": os.environ.get("REDIS_CLIENT"),
         # },
-        "TIMEOUT": os.environ.get("REDIS_TIMEOUT"),
+        "TIMEOUT": env("REDIS_TIMEOUT"),
     }
 }
 
@@ -111,8 +118,8 @@ AUTHENTICATION_BACKENDS = ["apps.authorization.services.authentication_backend.J
 
 # JWT TOKEN
 
-EXPIRE_DAYS = int(os.environ.get("EXPIRE_DAYS"))
-EXPIRE_MINUTES = int(os.environ.get("EXPIRE_MINUTES"))
+EXPIRE_DAYS = int(env("EXPIRE_DAYS"))
+EXPIRE_MINUTES = int(env("EXPIRE_MINUTES"))
 
 # Internationalization
 
