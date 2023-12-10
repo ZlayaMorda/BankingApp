@@ -74,7 +74,8 @@ typechain-types
 
 # Hardhat files
 cache
-artifacts
+artifacts/contracts
+artifacts/build-info
 
 # Depyloments
 ## Ucomment if you want to save deployments

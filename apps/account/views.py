@@ -5,12 +5,12 @@ from django.shortcuts import render, redirect
 from django.views import View
 from apps.account.services.account_service import AccountService
 from apps.account.forms import AccountCreateForm, AccountTransferForm
-from apps.account.services.validators import validate_decimal_value
 from utils.exceptions import AuthException, NotFound
+from apps.account.services.validators import validate_decimal_value
 from utils.permissions import logged_in
-from urllib.parse import parse_qs
 from utils.exceptions import CustomValueError
 from django.http import JsonResponse
+from urllib.parse import parse_qs
 
 
 class AccountDetailView(View):
@@ -21,7 +21,7 @@ class AccountDetailView(View):
     @logged_in
     def get(self, request, pk):
         context = {
-            'account_transfer_form': self.account_transfer_form(request.user)
+            'account_transfer_form': self.account_transfer_form(request.user),
         }
         account = self.service.retrieve_account_by_pk(pk=pk)
         if not account:
@@ -115,14 +115,20 @@ class AccountTransferView(View):
                 raise NotFound("Account does not exist")
             if account.owner != request.user:
                 raise AuthException()
-            if own_account != "--":
-                self.service.execute_account_transaction(str(source), str(own_account), amount)
-            elif destination is not None:
-                self.service.execute_account_transaction(str(source), str(destination), amount)
-            else:
-                account = self.service.retrieve_account_by_pk(pk=pk)
-                context["account"] = self.service.get_account_context(account)
+            try:
+                if own_account != "--":
+                    self.service.execute_account_transaction(str(source), str(own_account), amount)
+                elif destination is not None:
+                    self.service.execute_account_transaction(str(source), str(destination), amount)
+                else:
+                    account = self.service.retrieve_account_by_pk(pk=pk)
+                    context["account"] = self.service.get_account_context(account)
+                    return render(request, template_name="account/account_detail.html", context=context)
+            except CustomValueError as e:
+                form.add_error("destination_account", e.message)
+                self.get_account(request, pk, context)
                 return render(request, template_name="account/account_detail.html", context=context)
+
         else:
             self.get_account(request, pk, context)
             return render(request, template_name="account/account_detail.html", context=context)
@@ -145,11 +151,12 @@ class AccountTokenView(View):
     def post(self, request, pk):
         parsed_data = parse_qs(request.body.decode("utf-8"))
         data = {key: value[0] if len(value) == 1 else value for key, value in parsed_data.items()}
-        context = {}
+        context = {"account_transfer_form": AccountTransferForm(request.user)}
         try:
             data["amount"] = decimal.Decimal(data["amount"])
         except KeyError:
-            context = {"token": True, "content": "Invalid amount"}
+            context["token"] = True
+            context["content"] = "Invalid amount"
             self.get_account(request, pk, context)
             return render(request, template_name="account/account_detail.html", context=context)
 
@@ -166,6 +173,7 @@ class AccountTokenView(View):
                     else:
                         self.service.exchange_for_token(account, amount, bc_account)
                         context["account"] = self.service.get_account_context(account)
+
                         return render(request, template_name="account/account_detail.html", context=context)
                 else:
                     self.get_account(request, pk, context)
@@ -176,6 +184,15 @@ class AccountTokenView(View):
                 self.get_account(request, pk, context)
                 context["token"] = True
                 context["content"] = "Invalid blockchain account"
+            except ValueError:
+                self.get_account(request, pk, context)
+                context["content"] = "Insufficient funds, check account amount"
+                context["token"] = True
+            except ConnectionError:
+                self.get_account(request, pk, context)
+                context["content"] = "Problem connecting to network, try again later"
+                context["token"] = True
+            finally:
                 return render(request, template_name="account/account_detail.html", context=context)
         else:
             self.get_account(request, pk, context)
