@@ -76,7 +76,7 @@ class AccountService:
             source_account = Account.objects.get(account_uuid=source_account_uuid)
             destination_account = Account.objects.get(account_uuid=destination_account_uuid)
 
-            if source_account.amount - amount < 0:
+            if source_account.amount - amount < 0 or amount == 0.:
                 raise CustomValueError('Insufficient funds')
 
             amount_to_send = ExchangeRateAPI().calculate_amount(source_account.currency,
@@ -89,7 +89,7 @@ class AccountService:
 
     def exchange_for_token(self, account, amount, bc_account):
         amount_to_get = ExchangeRateAPI().calculate_amount(account.currency, "BYN", amount)
-        if account.amount - amount < 0:
+        if account.amount - amount < 0 or amount_to_get == 0:
             raise ValueError('Insufficient funds')
         account.amount -= amount
         account.save()
