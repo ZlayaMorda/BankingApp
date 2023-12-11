@@ -20,6 +20,7 @@
 {#                    </div>#}
                     <form id="Token">
                         <!-- Decimal Field with up to 2 decimal places -->
+                        <p id="CopyToken" class="font-weight-normal">Token Address: {{ tokenAddress }}</p><br>
                         <label for="amount">Enter amount:</label><br>
                         <input type="number" id="amount" name="amount" step="0.01" min="0"><br><br>
 
@@ -74,6 +75,3 @@
         });
     });
 </script>
-{#<script>#}
-{#    $("#id_bc_account").onclick(getAccount());#}
-{#</script>#}

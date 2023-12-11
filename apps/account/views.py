@@ -11,6 +11,7 @@ from utils.permissions import logged_in
 from utils.exceptions import CustomValueError
 from django.http import JsonResponse
 from urllib.parse import parse_qs
+from banking.settings import CONTRACT_ADDRESS
 
 
 class AccountDetailView(View):
@@ -22,6 +23,7 @@ class AccountDetailView(View):
     def get(self, request, pk):
         context = {
             'account_transfer_form': self.account_transfer_form(request.user),
+            "tokenAddress": CONTRACT_ADDRESS,
         }
         account = self.service.retrieve_account_by_pk(pk=pk)
         if not account:
@@ -92,7 +94,7 @@ class AccountTransferView(View):
     @logged_in
     def post(self, request, pk):
         form = AccountTransferForm(request.user, request.POST)
-        context = {"account_transfer_form": form}
+        context = {"account_transfer_form": form, "tokenAddress": CONTRACT_ADDRESS,}
 
         if request.POST.get("destination_account", None) and request.POST.get("own_accounts", None) != '--':
             form.add_error("destination_account", "Only one destination field must be chosen")
@@ -151,7 +153,7 @@ class AccountTokenView(View):
     def post(self, request, pk):
         parsed_data = parse_qs(request.body.decode("utf-8"))
         data = {key: value[0] if len(value) == 1 else value for key, value in parsed_data.items()}
-        context = {"account_transfer_form": AccountTransferForm(request.user)}
+        context = {"account_transfer_form": AccountTransferForm(request.user), "tokenAddress": CONTRACT_ADDRESS}
         try:
             data["amount"] = decimal.Decimal(data["amount"])
         except KeyError:
