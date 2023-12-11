@@ -110,6 +110,9 @@ class AccountService:
         #     'gas': 200000,  # Adjust the gas limit as needed
         #     'nonce': nonce,
         # })
+        current_amount = contract.functions.balanceOf(Web3.to_checksum_address("0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266")).call()
+        if current_amount < token_amount:
+            raise ValueError(f'There are {current_amount} available tokens')
         transaction = contract.functions.transfer(bc_account, token_amount).build_transaction({
             'chainId': w3.eth.chain_id,
             'gas': 200000,  # Adjust the gas limit as needed

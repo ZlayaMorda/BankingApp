@@ -194,6 +194,10 @@ class AccountTokenView(View):
                 self.get_account(request, pk, context)
                 context["content"] = "Problem connecting to network, try again later"
                 context["token"] = True
+            except Exception as e:
+                self.get_account(request, pk, context)
+                context["content"] = "Something went wrong"
+                context["token"] = True
             finally:
                 return render(request, template_name="account/account_detail.html", context=context)
         else:
