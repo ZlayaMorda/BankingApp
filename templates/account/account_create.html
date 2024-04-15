@@ -1,0 +1,33 @@
+{% load crispy_forms_tags %}
+
+<!-- Button trigger modal -->
+<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createAccountModal">
+    Create Account
+</button>
+
+<!-- Modal -->
+<div class="modal fade" id="createAccountModal" tabindex="-1" aria-labelledby="createAccountModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="createAccountModalLabel">Create Account</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Account creation form -->
+
+                <form method="post" action="{% url 'account_create' %}">
+                    {% csrf_token %}
+
+                    <!-- Currency chooser -->
+                    <div class="mb-3">
+                        {{ account_create_form }}
+
+                    </div>
+                    <!-- Add other fields as needed for creating an account -->
+                    <button type="submit" class="btn btn-primary">Create</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

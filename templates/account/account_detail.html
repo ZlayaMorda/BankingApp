@@ -1,0 +1,112 @@
+{% extends 'base/base.html' %}
+
+{% block javascript %}
+{% csrf_token %}
+<script>
+    function getCookie(cookieName) {
+    const name = `${cookieName}=`;
+    const decodedCookie = decodeURIComponent(document.cookie);
+    const cookieArray = decodedCookie.split(';');
+
+    for (let i = 0; i < cookieArray.length; i++) {
+        let cookie = cookieArray[i];
+        while (cookie.charAt(0) === ' ') {
+            cookie = cookie.substring(1);
+        }
+        if (cookie.indexOf(name) === 0) {
+            return cookie.substring(name.length, cookie.length);
+        }
+    }
+    return '';
+    }
+
+    // Usage
+    const csrftoken = getCookie('csrftoken');
+
+
+    function deleteAccount() {
+
+        const deleteEndpoint = '{% url 'account_delete' pk=account.id %}';
+        fetch(deleteEndpoint, {
+          method: 'POST',
+          credentials: "same-origin",
+          headers: {'Content-Type': 'application/json', 'X-CSRFTOKEN': csrftoken},
+          body: JSON.stringify({action:'delete_account'})
+        }).then((e) => {if (e.status === 200) {
+            $('#deleteAccountModal').modal('show')
+        }})
+    }
+
+    function submit_handler() {
+        let a = '{{ account_transfer_form.errors }}';
+        console.log(a)
+        if (a) {
+            let accountTransferButton = document.getElementById("accountTransferButton");
+            accountTransferButton.click(); // this will trigger the click event
+        }
+    }
+
+    function submit_token_modal() {
+        let token = '{{ token }}';
+
+        if (token) {
+            let accountTokenButton = document.getElementById("accountBuyToken");
+            accountTokenButton.click(); // this will trigger the click event
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", (event) => {
+        submit_handler();
+        submit_token_modal();
+    });
+</script>
+{% endblock %}
+
+
+{% block content %}
+        {% include 'account/account_delete.html' %}
+
+        <div class="container mt-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title">Account Information</h5>
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-sm-3">Owner:</div>
+                    <div class="col-sm-9">{{ account.owner.first_name }} {{ account.owner.last_name }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-3">Account Number:</div>
+                    <div class="col-sm-9">{{ account.id }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-3">Currency:</div>
+                    <div class="col-sm-9">{{ account.currency }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-3">Amount:</div>
+                    <div class="col-sm-9">{{ account.amount }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-3">Created At:</div>
+                    <div class="col-sm-9">{{ account.created_at }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-3">Updated At:</div>
+                    <div class="col-sm-9">{{ account.updated_at }}</div>
+                </div>
+            </div>
+            <div class="card-footer">
+                <div class="row" style="justify-content: center">
+                    <div class="col-sm-2 mx-1">{% include 'account/account_buy_token.html' %}</div>
+                    <div class="col-sm-2 mx-1">{% include 'account/account_transfer.html' %}</div>
+                    {% csrf_token %}
+                    <div onclick="deleteAccount()" class="col-sm-2 mx-1 btn btn-danger">Delete</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+{% endblock %}

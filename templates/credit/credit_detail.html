@@ -1,0 +1,77 @@
+{% extends 'base/base.html' %}
+
+
+{% block content %}
+
+        <div class="container mt-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title">Credit Information</h5>
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-sm-3">Owner:</div>
+                    <div class="col-sm-9">{{ credit.owner.first_name }} {{ credit.owner.last_name }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-3">Credit Number:</div>
+                    <div class="col-sm-9">{{ credit.credit_uuid }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-3">Currency:</div>
+                    <div class="col-sm-9">{{ credit.currency }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-3">Amount To Pay:</div>
+                    <div class="col-sm-9">{{ credit.amount_to_pay }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-3">One Payout:</div>
+                    <div class="col-sm-9">{{ credit.one_off_payment }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-3">Next Payout:</div>
+                    <div class="col-sm-9">{{ credit.next_payout }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-3">One Current Payout:</div>
+                    <div class="col-sm-9">{{ credit.one_off_current_payment }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-3">Count Of Payouts:</div>
+                    <div class="col-sm-9">{{ credit.payout_count }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-3">Account:</div>
+                    <div class="col-sm-4">{{ credit.account }}</div>
+                    <div class="col-sm-5">
+                        <form method="POST">
+                            {% csrf_token %}
+                            {{ form_account }}
+                            <button type="submit" name="change_button" class="col-sm-2 mx-1 btn btn-dark">Change</button>
+                        </form>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-3">Created At:</div>
+                    <div class="col-sm-9">{{ credit.created_at }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-3">Updated At:</div>
+                    <div class="col-sm-9">{{ credit.updated_at }}</div>
+                </div>
+            </div>
+            <div class="card-footer">
+                <div class="row" style="justify-content: center">
+                    <form method="POST">
+                        {% csrf_token %}
+                        {{ form_payment }}
+                        <button type="submit" name="payment_button" class="col-sm-2 mx-1 btn btn-success">Payment</button>
+                        <a>{{ validation_state }}</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
